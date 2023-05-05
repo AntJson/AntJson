@@ -1,33 +1,34 @@
 #include "json.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-void jsonAddField(JsonNode* node, JsonNodeType type, char* key, void* value) {
+int addChild(JsonNode* node, JsonNode* child) {
+    if (!node->type == object) {
+        return -1;
+    }
+    child->parent = node;
+    node->children[node->childrenLength] = child;
+    node->childrenLength++;
+}
+
+void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
     JsonValue* jValue;
     node->type = type;
     node->key = key;
     switch (type)
     {
         case object:
-            node->data = (JsonNode*) value;
-            break;
-        case array:
-            node->data = (JsonNode**) value;
+            node->children = (JsonNode**) value;
             break;
         case number_i:
-            jValue = (JsonValue*)malloc(sizeof(JsonValue));
-            jValue->i = (*(int*) value);
-            node->value = jValue;
+            node->value.i = (*(int*) value);
             break;
         case number_f:
-            jValue = (JsonValue*)malloc(sizeof(JsonValue));
-            jValue->f = (*(double*) value);
-            node->value = jValue;
+            node->value.f = (*(float*) value);
             break;
         case string:
-            jValue = (JsonValue*)malloc(sizeof(JsonValue));
-            jValue->s = (*(char*) value);
-            node->value = jValue;
+            node->value.s = (*(char*) value);
             break;
     }
 }
@@ -37,9 +38,6 @@ int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
     printf("[B] | key: %s | type: %d\n", b->key, b->type);
     if (a->type == b->type && strcmp(a->key, b->key) == 0) {
         if (a->type == object) {
-            return jsonIsEqualScheme((*a).data, (*b).data);
-        }
-        if (a->type == array) {
             if (arrayLength(a->children) != arrayLength(b->children)) {
                 return 0;
             }

@@ -1,18 +1,17 @@
+#include <stdint.h>
 #ifndef __JSON_HEADER__
 #define __JSON_HEADER__
 
-typedef enum {
+typedef enum JsonNodeType_t {
     object = 0,
-    array = 1,
-    number_i = 2,
-    number_f = 3,
-    string = 4,
+    number_i = 1,
+    number_f = 2,
+    string = 3,
 } JsonNodeType;
 
-typedef union
-{
+typedef union JsonValue_t{
     int i;
-    double f;
+    float f;
     char* s;
     // bool b;
 } JsonValue;
@@ -26,14 +25,15 @@ typedef struct JsonNode_t {
     // Pointer to parent node
     struct JsonNode_t* parent;
     // Not null if type is [number | string | bool]
-    JsonValue* value;
+    JsonValue value;
     // Not null if type is object
-    struct JsonNode_t* data;
-    // Not null if type is array
     struct JsonNode_t** children;
+    // Count of childrens
+    uint8_t childrenLength;
 } JsonNode;
 
-void jsonAddField(JsonNode* node, JsonNodeType type, char* key, void* value);
+int addChild(JsonNode* node, JsonNode* child);
+void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value);
 double arrayLength(JsonNode** array);
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b);
 
