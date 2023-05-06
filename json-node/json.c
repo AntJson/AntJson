@@ -4,12 +4,12 @@
 #include <stdlib.h>
 
 int addChild(JsonNode* node, JsonNode* child) {
-    if (!node->type == object) {
+    if (node->type != object) {
         return -1;
     }
     child->parent = node;
-    node->children[node->childrenLength] = child;
-    node->childrenLength++;
+    reallocateJsonNodeChildren(node, node->childrenLength + 1);
+    node->children[node->childrenLength++] = child;
 }
 
 void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
@@ -28,7 +28,7 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
             node->value.f = (*(float*) value);
             break;
         case string:
-            node->value.s = (*(char*) value);
+            node->value.s = (char*) value;
             break;
     }
 }
@@ -54,4 +54,38 @@ int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
 
 double arrayLength(JsonNode** array) {
     return sizeof(array) / sizeof(*array);
+}
+
+JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
+    JsonNode* node = (JsonNode*)malloc(sizeof (JsonNode));
+    node->key = key;
+    node->type = type;
+    node->childrenLength = 0;
+    reallocateJsonNodeChildren(node, 0);
+    return node;
+}
+
+void disposeJsonNode(JsonNode* node) {
+    if (node->type == object && node->childrenLength != 0 && node->children != NULL) {
+        for (int i = 0; i < node->childrenLength; i++) {
+            disposeJsonNode(node->children[0]);
+        }
+    }
+    if (node->children != NULL) {
+        free(node->children);
+    }
+    if (node != NULL) {
+        free(node);
+    }
+}
+
+void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
+    if (size == 0) {
+        return;
+    }
+    if (node->children == NULL) {
+        node->children = (JsonNode**) calloc(size, sizeof(JsonNode*));
+    } else {
+        realloc(node->children, sizeof (JsonNode*) * size);
+    }
 }
