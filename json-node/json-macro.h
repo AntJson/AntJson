@@ -21,7 +21,7 @@
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
         __constructor__##type(source, dest->fieldName);                                 \
     }                                                                                   \
-    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                                   \
+    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
         __constructor__##type(source->children[i], dest->fieldName);                    \
     }
 #endif // DTOStructConstructor

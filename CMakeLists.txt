@@ -9,6 +9,8 @@ set(
         complexity-tests/simple-struct.c
         complexity-tests/nested-structs.c
         json-node/json.c
-)
+        json-parser/json-token.c
+        json-parser/json-token-test.c
+        constants/errors.h)
 
 add_executable(DTOConstructor ${SOURCE_FILES})
