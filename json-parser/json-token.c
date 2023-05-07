@@ -46,6 +46,7 @@ int jsonTokenAddChild(JsonToken* token, JsonToken* child) {
         }
         token->children = (JsonToken**)malloc(sizeof (JsonToken*));
         token->children[token->childrenLength++] = child;
+        child->parent = token;
         return 0;
     }
     realloc(token->children, sizeof(JsonToken*) * ++token->childrenLength);
@@ -55,7 +56,7 @@ int jsonTokenAddChild(JsonToken* token, JsonToken* child) {
 
 int jsonTokenFree(JsonToken* token) {
     if (token == NULL) {
-        return disposeTokenWithNullPtr;
+        return disposeWithNullPtr;
     }
     for (uint32_t i = 0; i < token->childrenLength; i++) {
         int code = jsonTokenFree(token->children[i]);

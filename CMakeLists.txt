@@ -6,11 +6,14 @@ set(CMAKE_C_STANDARD 11)
 set(
         SOURCE_FILES
         main.c
+        constants/errors.h
         complexity-tests/simple-struct.c
         complexity-tests/nested-structs.c
         json-node/json.c
         json-parser/json-token.c
         json-parser/json-token-test.c
-        constants/errors.h)
+        json-parser/context/context.c
+        json-parser/tokenizer/tokenizer.c
+)
 
 add_executable(DTOConstructor ${SOURCE_FILES})

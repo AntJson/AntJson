@@ -11,6 +11,7 @@ typedef struct __JsonToken_s JsonToken;
 struct __JsonToken_s {
     char* key;
     char* data;
+    JsonToken* parent;
     JsonToken** children;
     uint32_t childrenLength;
 };

@@ -5,7 +5,9 @@
 #ifndef DTOCONSTRUCTOR_ERRORS_H
 #define DTOCONSTRUCTOR_ERRORS_H
 
-const int childrenPtrNullWithNonZeroLength  = 0x00000010;
-const int disposeTokenWithNullPtr           = 0x00000011;
+#define childrenPtrNullWithNonZeroLength  0x00000010;
+#define disposeWithNullPtr           0x00000011;
+
+#define operationOnNullContext 0x00000100;
 
 #endif //DTOCONSTRUCTOR_ERRORS_H
