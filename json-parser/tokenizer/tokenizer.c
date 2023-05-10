@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "tokenizer.h"
 
 char* getSubstr(const char* source, uint32_t begin, uint32_t end) {
@@ -49,7 +50,10 @@ JsonToken* jsonTokenFromJsonString(char* source) {
                 contextAddChild(context, keyContext);
                 context = keyContext;
 
-                if (rootToken->key == NULL) {
+                if (rootToken == NULL) {
+                    return NULL;
+                }
+                if (rootToken->key == NULL || rootToken->children != NULL) {
                     context->contextType = contextKey;
                 } else {
                     context->contextType = contextValue;
@@ -69,14 +73,18 @@ JsonToken* jsonTokenFromJsonString(char* source) {
                 continue;
             }
             if (context->contextType == contextValue) {
-                jsonTokenUpdateData(rootToken, getSubstr(source, context->openLiteralPos, pos + 1));
-                printf("Value: %s\n", rootToken->data);
+                JsonToken* valueToken = jsonTokenCreateClean();
+                jsonTokenAddChild(rootToken, valueToken);
+                jsonTokenUpdateData(valueToken, getSubstr(source, context->openLiteralPos, pos + 1));
+                printf("Value: %s\n", valueToken->data);
                 context = context->parent;
-                rootToken = rootToken->parent;
+                if (rootToken->parent != NULL) {
+                    rootToken = rootToken->parent;
+                }
             }
         }
     }
-    while(rootToken->parent != NULL) {
+    while(rootToken != NULL && rootToken->parent != NULL) {
         rootToken = rootToken->parent;
     }
 }

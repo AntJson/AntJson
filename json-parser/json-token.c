@@ -2,9 +2,9 @@
 // Created by danysmall on 5/6/23.
 //
 
+#include <stdlib.h>
 #include "json-token.h"
 #include "../constants/errors.h"
-#include <stdlib.h>
 
 JsonToken* jsonTokenCreate(char* key, char* data, uint32_t childrenLength, JsonToken** children) {
     JsonToken* token = jsonTokenCreateClean();
@@ -51,6 +51,7 @@ int jsonTokenAddChild(JsonToken* token, JsonToken* child) {
     }
     realloc(token->children, sizeof(JsonToken*) * ++token->childrenLength);
     token->children[token->childrenLength - 1] = child;
+    child->parent = token;
     return 0;
 }
 
