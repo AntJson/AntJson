@@ -3,7 +3,7 @@
 //
 
 #include "contacts-struct.h"
-#include "../../json-node/json.h"
+#include "../../../json-node/json.h"
 
 #ifndef DTOCONSTRUCTOR_PROFILE_STRUCT_H
 #define DTOCONSTRUCTOR_PROFILE_STRUCT_H

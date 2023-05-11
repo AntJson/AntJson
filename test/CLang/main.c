@@ -1,4 +1,4 @@
-#include "../antjson.h"
+#include "../../antjson.h"
 #include "structures/user-struct.h"
 
 typedef struct Account_s {
@@ -7,8 +7,8 @@ typedef struct Account_s {
 } Account;
 
 DTOConstructor(Account,
-               DTOFieldConstructor("username", username, s, string)
-               DTOFieldConstructor("password", password, s, string)
+               DTOFieldConstructor("username", username, s, JsonNodeTypeString)
+               DTOFieldConstructor("password", password, s, JsonNodeTypeString)
 )
 
 typedef struct NVR_s {
@@ -18,9 +18,9 @@ typedef struct NVR_s {
     Account* account;
 } NVR;
 DTOConstructor(NVR,
-               DTOFieldConstructor("ip", ip, s, string)
-               DTOFieldConstructor("name", name, s, string)
-               DTOFieldConstructor("port", port, i, number_i)
+               DTOFieldConstructor("ip", ip, s, JsonNodeTypeString)
+               DTOFieldConstructor("name", name, s, JsonNodeTypeString)
+               DTOFieldConstructor("port", port, i, JsonNodeTypeInt)
                DTOStructConstructor("account", account, Account)
 )
 

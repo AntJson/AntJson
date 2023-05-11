@@ -9,6 +9,14 @@
 #ifndef DTOCONSTRUCTOR_JSON_PARSER_H
 #define DTOCONSTRUCTOR_JSON_PARSER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 JsonNode* jsonNodeParse(const char* source);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif //DTOCONSTRUCTOR_JSON_PARSER_H

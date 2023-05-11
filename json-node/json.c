@@ -18,7 +18,7 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
 }
 
 int addChild(JsonNode* node, JsonNode* child) {
-    if (node->type != object) {
+    if (node->type != JsonNodeTypeObject) {
         return -1;
     }
     child->parent = node;
@@ -32,16 +32,16 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
     node->key = key;
     switch (type)
     {
-        case object:
+        case JsonNodeTypeObject:
             node->children = (JsonNode**) value;
             break;
-        case number_i:
+        case JsonNodeTypeInt:
             node->value.i = (*(int*) value);
             break;
-        case number_f:
+        case JsonNodeTypeFloat:
             node->value.f = (*(float*) value);
             break;
-        case string:
+        case JsonNodeTypeString:
             node->value.s = (char*) value;
             break;
     }
@@ -69,7 +69,7 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
 
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
     if (a->type == b->type && strcmp(a->key, b->key) == 0) {
-        if (a->type == object) {
+        if (a->type == JsonNodeTypeObject) {
             return isChildrenEqual(a, b);
         }
         return 1;
@@ -87,7 +87,7 @@ JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
 }
 
 void disposeJsonNode(JsonNode* node) {
-    if (node->type == object && node->childrenLength != 0 && node->children != NULL) {
+    if (node->type == JsonNodeTypeObject && node->childrenLength != 0 && node->children != NULL) {
         for (int i = 0; i < node->childrenLength; i++) {
             disposeJsonNode(node->children[0]);
         }

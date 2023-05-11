@@ -1,4 +1,5 @@
 #include "../json-node/json.h"
+#include "../json-parser/json-parser.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -48,7 +49,7 @@
 #define DTOConstructor(structType, ...)                                                 \
     DTOChildrenUnpack(structType, ##__VA_ARGS__)                                        \
     int DTOFromJsonName(structType)(JsonNode* source, structType* dest) {               \
-        if (source->type == object) {                                                   \
+        if (source->type == JsonNodeTypeObject) {                                       \
             DTOChildrenUnpackName(structType)(source, dest);                            \
         }                                                                               \
         const int flag = 0;                                                             \
@@ -62,7 +63,7 @@
         JsonNode* source = NULL;                                                        \
         structType* dest = NULL;                                                        \
         const int i = 0;                                                                \
-        JsonNode* parent = getEmptyJsonNode("", object);                                \
+        JsonNode* parent = getEmptyJsonNode("", JsonNodeTypeObject);                    \
         __VA_ARGS__                                                                     \
         return parent;                                                                  \
     }                                                                                   \
@@ -74,7 +75,7 @@
     int DTOChildrenUnpackName(structType)(JsonNode* source, structType* dest) {         \
         const int flag = 1;                                                             \
         JsonNode* parent = NULL;                                                        \
-        if (source->type != object) {                                                   \
+        if (source->type != JsonNodeTypeObject) {                                       \
             return -1;                                                                  \
         }                                                                               \
         for (int i = 0; i < source->childrenLength; i++) {                              \
