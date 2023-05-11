@@ -1,21 +1,18 @@
 cmake_minimum_required(VERSION 3.25)
-project(DTOConstructor C)
+project(AntJson C)
 
 set(CMAKE_C_STANDARD 11)
 
 set(
         SOURCE_FILES
-        main.c
-        constants/errors.h
-        complexity-tests/simple-struct.c
-        complexity-tests/nested-structs.c
+        test/main.c
+        jsmn/jsmn.c
         json-node/json.c
-        json-parser/json-token.c
-        json-parser/json-token-test.c
-        json-parser/context/context.c
-        json-parser/tokenizer/tokenizer.c
-        json-parser/node-converter/node-converter.c
-        jsmn/jsmn.h
+        json-parser/json-parser.c
+        test/structures/user-struct.c
+        test/structures/profile-struct.c
+        test/structures/contacts-struct.c
 )
 
-add_executable(DTOConstructor ${SOURCE_FILES})
+add_executable(AntJson ${SOURCE_FILES})
+#add_library(AntJson SHARED ${SOURCE_FILES})

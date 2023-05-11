@@ -24,7 +24,6 @@ typedef union JsonValue_t{
 
 
 typedef struct JsonNode_t {
-    uint32_t parentID;
     // Json type of field related to current key
     JsonNodeType type;
     // Key in json map
@@ -41,15 +40,14 @@ typedef struct JsonNode_t {
 
 // JsonNode function helpers
 JsonNode* getEmptyJsonNode(char* key, JsonNodeType type);
+
 // Free all allocated memory for all node tree
 void disposeJsonNode(JsonNode* node);
-// Reallocate memory for children
-void reallocateJsonNodeChildren(JsonNode* node, uint32_t size);
 
-
+// Add child to parent node with setting child->parent also
 int addChild(JsonNode* node, JsonNode* child);
-void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value);
-double arrayLength(JsonNode** array);
+
+// Checks if two JsonNodes has the same scheme
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b);
 
 #endif // JSON_H
