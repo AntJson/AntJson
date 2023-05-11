@@ -5,6 +5,8 @@
 #ifndef DTOCONSTRUCTOR_JSMN_H
 #define DTOCONSTRUCTOR_JSMN_H
 
+//#define JSMN_PARENT_LINKS
+
 #ifdef __cplusplus
 extern "C" {
 #endif

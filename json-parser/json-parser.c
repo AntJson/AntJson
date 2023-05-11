@@ -2,7 +2,7 @@
 // Created by danysmall on 5/11/23.
 //
 #include "../json-node/json.h"
-#include "../jsmn-lib/jsmn.h"
+#include "../jsmn/jsmn.h"
 #ifndef DTOCONSTRUCTOR_JSON_PARSER_H
 #define DTOCONSTRUCTOR_JSON_PARSER_H
 
@@ -59,9 +59,10 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
             JsonNode* child = getEmptyJsonNode(keyValue,object);
             addChild(node, child);
 
-            jsmntok_t objectTokens[tokensCount - i];
-            memcpy(objectTokens, tokens + i + 2, (tokensCount - i - 1) * sizeof(*tokens));
-            i += tokensToNodes(objectTokens, tokensCount - i - 1, child, source);
+            jsmntok_t objectTokens[value.size * 2];
+            memcpy(objectTokens, tokens + i + 2, (value.size * 2) * sizeof(*tokens));
+            tokensToNodes(objectTokens, value.size * 2, child, source);
+            i += (value.size * 2);
             continue;
         }
     }
@@ -82,7 +83,7 @@ JsonNode* jsonNodeParse(const char* source) {
 
     node = getEmptyJsonNode("", object);
 
-    jsmntok_t tokensWithoutRootObject[128];
+    jsmntok_t tokensWithoutRootObject[parsedCount - 1];
     memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
 
     tokensToNodes(tokensWithoutRootObject, parsedCount, node, source);
