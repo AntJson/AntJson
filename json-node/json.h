@@ -11,17 +11,20 @@ typedef enum JsonNodeType_t {
     number_i = 1,
     number_f = 2,
     string = 3,
+    bool = 4,
+    null = 5,
 } JsonNodeType;
 
 typedef union JsonValue_t{
     int i;
     float f;
     char* s;
-    // bool b;
+    int b;
 } JsonValue;
 
 
 typedef struct JsonNode_t {
+    uint32_t parentID;
     // Json type of field related to current key
     JsonNodeType type;
     // Key in json map
@@ -33,7 +36,7 @@ typedef struct JsonNode_t {
     // Not null if type is object
     struct JsonNode_t** children;
     // Count of children
-    uint8_t childrenLength;
+    uint32_t childrenLength;
 } JsonNode;
 
 // JsonNode function helpers
