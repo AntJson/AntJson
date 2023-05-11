@@ -14,6 +14,8 @@ set(
         json-parser/json-token-test.c
         json-parser/context/context.c
         json-parser/tokenizer/tokenizer.c
+        json-parser/node-converter/node-converter.c
+        jsmn/jsmn.h
 )
 
 add_executable(DTOConstructor ${SOURCE_FILES})

@@ -2,63 +2,118 @@
 #include "complexity-tests/simple-struct.h"
 #include "json-parser/json-token-test.h"
 #include "json-parser/tokenizer/tokenizer.h"
+#include "json-parser/node-converter/node-converter.h"
 
-const char* json = "{"
-                   "\"key\": {"
-                   "\"second_key\":\"value\""
-                   "}"
-                   "}";
+#define JSMN_PARENT_LINKS
+#include "jsmn/jsmn.h"
+#include "json-node/json-macro.h"
 
-const char* json2 = "{\"key\":{\"second_key\":{\"third_key\":\"value\", \"fourth_key\":\"value_2\"}}}";
+typedef struct {
+    char* number;
+} Contacts;
+DTOConstructor(Contacts,
+               DTOFieldConstructor("number", number, s))
 
-/**
-{
-  "1": "1.data",
-  "2": {
-    "2.1": "2.1.data",
-    "2.2": "2.2.data"
-  },
-  "3": {
-    "3.1": {
-      "3.1.1": "3.1.1.data",
-      "3.1.2": "3.1.2.data"
-    },
-    "3.2": "3.2.data"
-  },
-  "4": {
-    "4.1": {
-      "4.1.1": {
-        "4.1.1.1": "4.1.1.1.data"
-      }
+typedef struct {
+    int married;
+    Contacts* contacts;
+} Profile;
+DTOConstructor(Profile,
+               DTOFieldConstructor("married", married, b)
+               DTOStructConstructor("contacts", contacts, Contacts))
+
+typedef struct {
+    int age;
+    Profile* profile;
+} User;
+DTOConstructor(User,
+               DTOFieldConstructor("age", age, i)
+               DTOStructConstructor("profile", profile, Profile))
+
+const char* complex = "{\n"
+                      "  \"age\": 15,\n"
+                      "  \"profile\": {\n"
+                      "    \"married\": true,\n"
+                      "    \"contacts\" : {\n"
+                      "      \"number\": null\n"
+                      "    }\n"
+                      "  }\n"
+                      "}";
+
+
+int tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, const char* source) {
+    for (uint32_t i = 0; i < tokensCount; i += 2) {
+        jsmntok_t key = tokens[i];
+        jsmntok_t value = tokens[i + 1];
+
+        if (value.type == JSMN_STRING) {
+            JsonNode* child = getEmptyJsonNode(
+                    getSubstr(source, key.start, key.end),
+                    string);
+            child->value.s = getSubstr(source, value.start, value.end);
+            addChild(node, child);
+            continue;
+        }
+
+        if (value.type == JSMN_PRIMITIVE) {
+            JsonNode* child = getEmptyJsonNode(
+                    getSubstr(source, key.start, key.end),
+                    object);
+            addChild(node, child);
+
+            char* valueString = getSubstr(source, value.start, value.end);
+            if (valueString[0] == 'n') {
+                child->type = null;
+                child->value.s = NULL;
+            } else if (valueString[0] == 't') {
+                child->type = bool;
+                child->value.b = 1;
+            } else if (valueString[0] == 'f') {
+                child->type = bool;
+                child->value.b = 0;
+            } else {
+                if (strstr(valueString, ".")) {
+                    child->type = number_f;
+                    child->value.f = atof(valueString);
+                } else {
+                    child->type = number_i;
+                    child->value.i = atoi(valueString);
+                }
+            }
+
+            continue;
+        }
+
+        if (value.type == JSMN_OBJECT) {
+            JsonNode* child = getEmptyJsonNode(
+                    getSubstr(source, key.start, key.end),
+                    object);
+            addChild(node, child);
+
+            jsmntok_t objectTokens[tokensCount - i];
+            memcpy(objectTokens, tokens + i + 2, (tokensCount - i - 3) * sizeof(*tokens));
+            i += tokensToNodes(objectTokens, tokensCount - i - 3, child, source);
+            continue;
+        }
     }
-  }
+    return tokensCount;
 }
- */
-const char* complexJson = "{\n"
-                          "  \"1\": \"1.data\",\n"
-                          "  \"2\": {\n"
-                          "    \"2.1\": \"2.1.data\",\n"
-                          "    \"2.2\": \"2.2.data\"\n"
-                          "  },\n"
-                          "  \"3\": {\n"
-                          "    \"3.1\": {\n"
-                          "      \"3.1.1\": \"3.1.1.data\",\n"
-                          "      \"3.1.2\": \"3.1.2.data\"\n"
-                          "    },\n"
-                          "    \"3.2\": \"3.2.data\"\n"
-                          "  },\n"
-                          "  \"4\": {\n"
-                          "    \"4.1\": {\n"
-                          "      \"4.1.1\": {\n"
-                          "        \"4.1.1.1\": \"4.1.1.1.data\"\n"
-                          "      }\n"
-                          "    }\n"
-                          "  }\n"
-                          "}";
 
 int main() {
-//    testPersonalData();
-//    testPhoneNumber();
-//    __testJsonToken();
-    jsonTokenFromJsonString((char*)complexJson);
+    jsmn_parser p;
+    jsmntok_t t[128]; /* We expect no more than 128 JSON tokens */
+
+    jsmn_init(&p);
+    int response = jsmn_parse(&p, complex, strlen(complex), t, 128);
+    jsmntok_t tokens[128];
+    memcpy(tokens, t + 1, (response - 1) * sizeof(jsmntok_t));
+
+    JsonNode* node = getEmptyJsonNode("", object);
+    tokensToNodes(tokens, response, node, complex);
+
+    User* user = (User*) malloc(sizeof(User));
+    user->profile = (Profile*) malloc(sizeof(Profile));
+    user->profile->contacts = (Contacts*)malloc(sizeof (Contacts));
+
+    __constructor__User(node, user);
 }

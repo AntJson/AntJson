@@ -16,6 +16,11 @@ JsonToken* jsonTokenCreate(char* key, char* data, uint32_t childrenLength, JsonT
 
 JsonToken* jsonTokenCreateClean() {
     JsonToken* token = (JsonToken*)malloc(sizeof(JsonToken));
+    token->children = NULL;
+    token->parent = NULL;
+    token->key = NULL;
+    token->data = NULL;
+    token->childrenLength = 0;
     return token;
 }
 

@@ -87,4 +87,5 @@ JsonToken* jsonTokenFromJsonString(char* source) {
     while(rootToken != NULL && rootToken->parent != NULL) {
         rootToken = rootToken->parent;
     }
+    return rootToken;
 }

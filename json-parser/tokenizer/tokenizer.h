@@ -8,7 +8,7 @@
 
 #ifndef DTOCONSTRUCTOR_TOKENIZER_H
 #define DTOCONSTRUCTOR_TOKENIZER_H
-
+char* getSubstr(const char* source, uint32_t begin, uint32_t end);
 JsonToken* jsonTokenFromJsonString(char* source);
 JsonNode* jsonNodeFromToken(JsonToken* token);
 
