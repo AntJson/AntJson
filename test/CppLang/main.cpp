@@ -5,9 +5,9 @@
 struct Account {
     char* username;
     char* password;
-    DTOConstructor(Account,
-                   DTOFieldConstructor("username", username, s, JsonNodeType::String)
-                   DTOFieldConstructor("password", password, s, JsonNodeType::String)
+    AntJson(Account,
+            AntValue("username", username, s, JsonNodeType::String)
+            AntValue("password", password, s, JsonNodeType::String)
     )
 };
 
@@ -17,11 +17,11 @@ struct NVR {
     char* name;
     int port;
     Account* account;
-    DTOConstructor(NVR,
-                   DTOFieldConstructor("ip", ip, s, JsonNodeTypeString)
-                   DTOFieldConstructor("name", name, s, JsonNodeTypeString)
-                   DTOFieldConstructor("port", port, i, JsonNodeTypeInt)
-                   DTOStructConstructor("account", account, Account)
+    AntJson(NVR,
+            AntValue("ip", ip, s, JsonNodeTypeString)
+            AntValue("name", name, s, JsonNodeTypeString)
+            AntValue("port", port, i, JsonNodeTypeInt)
+            AntStruct("account", account, Account)
     )
 };
 

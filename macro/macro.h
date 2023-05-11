@@ -5,7 +5,6 @@
     #define StaticMember static
     #define StaticPrefix(structName, constructorName) structName::constructorName
 #else
-    #define ConstructorPrefix(fieldName, constructorName) constructorName
     #define StaticMember
     #define StaticPrefix(structName, constructorName) constructorName
 #endif
@@ -18,44 +17,44 @@
     #include <stdlib.h>
 #endif // __cplusplus
 
-#ifndef DTOKeySecure
+#ifndef AntKeySecure
     #ifdef __cplusplus
-        #define DTOKeySecure(jsonKey) (char*)jsonKey
+        #define AntKeySecure(jsonKey) (char*)jsonKey
     #else
-        #define DTOKeySecure(jsonKey) jsonKey
+        #define AntKeySecure(jsonKey) jsonKey
     #endif // __cplusplus
-#endif // DTOKeySecure
+#endif // AntKeySecure
 
 
-#ifndef DTOFromJsonName
-#define DTOFromJsonName(structName) structName##FromJson
-#endif // DTOFromJsonName
+#ifndef AntFromJsonName
+#define AntFromJsonName(structName) structName##FromJson
+#endif // AntFromJsonName
 
-#ifndef DTOChildrenUnpackName
-#define DTOChildrenUnpackName(structName) _children__unpack__##structName
-#endif // DTOChildrenUnpackName
+#ifndef AntChildrenUnpackName
+#define AntChildrenUnpackName(structName) _children__unpack__##structName
+#endif // AntChildrenUnpackName
 
-#ifndef DTOToJsonSchemeName
-#define DTOToJsonSchemeName(structName) structName##ToJsonScheme
-#endif // DTOToJsonSchemeName
+#ifndef AntToJsonSchemeName
+#define AntToJsonSchemeName(structName) structName##ToJsonScheme
+#endif // AntToJsonSchemeName
 
-#ifndef DTOStructConstructor
-#define DTOStructConstructor(jsonKey, fieldName, type)                                  \
+#ifndef AntStruct
+#define AntStruct(jsonKey, fieldName, type)                                  \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
-        StaticPrefix(type, DTOFromJsonName(type))(source, dest->fieldName);             \
+        StaticPrefix(type, AntFromJsonName(type))(source, dest->fieldName);             \
     }                                                                                   \
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        StaticPrefix(type, DTOFromJsonName(type))(source->children[i], dest->fieldName);\
+        StaticPrefix(type, AntFromJsonName(type))(source->children[i], dest->fieldName);\
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        JsonNode* child = StaticPrefix(type, DTOToJsonSchemeName(type))();              \
-        child->key = DTOKeySecure(jsonKey);                                             \
+        JsonNode* child = StaticPrefix(type, AntToJsonSchemeName(type))();              \
+        child->key = AntKeySecure(jsonKey);                                             \
         addChild(parent, child);                                                        \
     }
-#endif // DTOStructConstructor
+#endif // AntStruct
 
-#ifndef DTOFieldConstructor
-#define DTOFieldConstructor(jsonKey, fieldName, unionType, nodeType)                    \
+#ifndef AntValue
+#define AntValue(jsonKey, fieldName, unionType, nodeType)                    \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
         dest->fieldName = source->value.unionType;                                      \
     }                                                                                   \
@@ -63,17 +62,17 @@
         dest->fieldName = source->children[i]->value.unionType;                         \
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        JsonNode* child = getEmptyJsonNode(DTOKeySecure(jsonKey), nodeType);            \
+        JsonNode* child = getEmptyJsonNode(AntKeySecure(jsonKey), nodeType);            \
         addChild(parent, child);                                                        \
     }
-#endif // DTOFieldConstructor
+#endif // AntValue
 
-#ifndef DTOConstructor
-#define DTOConstructor(structType, ...)                                                 \
-    StaticMember DTOChildrenUnpack(structType, ##__VA_ARGS__)\
-    StaticMember int DTOFromJsonName(structType)(JsonNode* source, structType* dest) {  \
+#ifndef AntJson
+#define AntJson(structType, ...)                                                 \
+    StaticMember AntChildrenUnpack(structType, ##__VA_ARGS__)\
+    StaticMember int AntFromJsonName(structType)(JsonNode* source, structType* dest) {  \
         if (source->type == JsonNodeTypeObject) {                                       \
-            DTOChildrenUnpackName(structType)(source, dest);                            \
+            AntChildrenUnpackName(structType)(source, dest);                            \
         }                                                                               \
         const int flag = 0;                                                             \
         const int i = 0;                                                                \
@@ -81,21 +80,21 @@
         __VA_ARGS__                                                                     \
         return 0;                                                                       \
     }                                                                                   \
-    StaticMember JsonNode* DTOToJsonSchemeName(structType) () {                         \
+    StaticMember JsonNode* AntToJsonSchemeName(structType) () {                         \
         const int flag = 2;                                                             \
         JsonNode* source = NULL;                                                        \
         structType* dest = NULL;                                                        \
         const int i = 0;                                                                \
-        JsonNode* parent = getEmptyJsonNode(DTOKeySecure(""), JsonNodeTypeObject);      \
+        JsonNode* parent = getEmptyJsonNode(AntKeySecure(""), JsonNodeTypeObject);      \
         __VA_ARGS__                                                                     \
         return parent;                                                                  \
     }                                                                                   \
 
-#endif // DTOConstructor
+#endif // AntJson
 
-#ifndef DTOChildrenUnpack
-#define DTOChildrenUnpack(structType, ...)                                              \
-    int DTOChildrenUnpackName(structType)(JsonNode* source, structType* dest) {         \
+#ifndef AntChildrenUnpack
+#define AntChildrenUnpack(structType, ...)                                              \
+    int AntChildrenUnpackName(structType)(JsonNode* source, structType* dest) {         \
         const int flag = 1;                                                             \
         JsonNode* parent = NULL;                                                        \
         if (source->type != JsonNodeTypeObject) {                                       \
@@ -106,4 +105,4 @@
         }                                                                               \
         return 0;                                                                       \
     }
-#endif // DTOChildrenUnpack
+#endif // AntChildrenUnpack
