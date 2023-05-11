@@ -2,7 +2,7 @@
 // Created by danysmall on 5/11/23.
 //
 #include "../json-node/json.h"
-#include "../jsmn/jsmn.h"
+#include "../jsmn-lib/jsmn.h"
 #ifndef DTOCONSTRUCTOR_JSON_PARSER_H
 #define DTOCONSTRUCTOR_JSON_PARSER_H
 

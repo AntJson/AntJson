@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 set(
         SOURCE_FILES
         test/main.c
-        jsmn/jsmn.c
+        jsmn-lib/jsmn.c
         json-node/json.c
         json-parser/json-parser.c
         test/structures/user-struct.c
