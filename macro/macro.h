@@ -4,11 +4,13 @@
 #ifdef ANT_JSON_MEMBER
     #define StaticMember
     #define StaticPrefix(structName, constructorName) structName::constructorName
-    #define Namespaced(value) AntJson::value
+    #define Namespaced(value) Ant::value
+    #define JsonType(type) JsonNodeType::type
 #else
     #define Namespaced(value) value
     #define StaticMember
     #define StaticPrefix(structName, constructorName) constructorName
+    #define JsonType(type) JsonNodeType##type
 #endif
 
 #ifdef __cplusplus
@@ -82,7 +84,7 @@
 #define AntJson(structType, ...)                                                 \
     StaticMember AntChildrenUnpack(structType, ##__VA_ARGS__)\
     int StaticPrefix(structType, AntFromJsonName(structType))(Namespaced(JsonNode)* source, structType* dest) {  \
-        if (source->type == Namespaced(JsonNodeTypeObject)) {                                       \
+        if (source->type == Namespaced(JsonType(Object))) {                                       \
             AntChildrenUnpackName(structType)(source, dest);                            \
         }                                                                               \
         const int flag = 0;                                                             \
@@ -96,7 +98,7 @@
         Namespaced(JsonNode)* source = NULL;                                                        \
         structType* dest = NULL;                                                        \
         const int i = 0;                                                                \
-        Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonNodeTypeObject));      \
+        Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonType(Object)));      \
         __VA_ARGS__                                                                     \
         return parent;                                                                  \
     }                                                                                   \
@@ -108,7 +110,7 @@
     int AntChildrenUnpackName(structType)(Namespaced(JsonNode)* source, structType* dest) {         \
         const int flag = 1;                                                             \
         Namespaced(JsonNode)* parent = NULL;                                                        \
-        if (source->type != Namespaced(JsonNodeTypeObject)) {                                       \
+        if (source->type != Namespaced(JsonType(Object))) {                                       \
             return -1;                                                                  \
         }                                                                               \
         for (int i = 0; i < source->childrenLength; i++) {                              \

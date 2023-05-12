@@ -17,6 +17,7 @@ typedef struct NVR_s {
     int port;
     Account* account;
 } NVR;
+
 AntJson(NVR,
         AntValue("ip", ip, s, JsonNodeTypeString)
         AntValue("name", name, s, JsonNodeTypeString)
