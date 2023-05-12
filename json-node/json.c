@@ -2,8 +2,23 @@
 #include <string.h>
 #include <stdlib.h>
 
+void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
+    if (size == 0) {
+        return;
+    }
+    if (node->children == NULL) {
+        node->children = (JsonNode**) calloc(size, sizeof(JsonNode*));
+    } else {
+        JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
+        memcpy(newArray, node->children, (size - 1) * sizeof(JsonNode*));
+        node->children = newArray;
+//        reallocarray(node->children, size, sizeof(JsonNode*));
+//        realloc(node->children, sizeof (JsonNode*) * size);
+    }
+}
+
 int addChild(JsonNode* node, JsonNode* child) {
-    if (node->type != object) {
+    if (node->type != JsonNodeTypeObject) {
         return -1;
     }
     child->parent = node;
@@ -17,33 +32,45 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
     node->key = key;
     switch (type)
     {
-        case object:
+        case JsonNodeTypeObject:
             node->children = (JsonNode**) value;
             break;
-        case number_i:
+        case JsonNodeTypeInt:
             node->value.i = (*(int*) value);
             break;
-        case number_f:
+        case JsonNodeTypeFloat:
             node->value.f = (*(float*) value);
             break;
-        case string:
+        case JsonNodeTypeString:
             node->value.s = (char*) value;
             break;
     }
 }
 
-int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
-    if (a->type == b->type && strcmp(a->key, b->key) == 0) {
-        if (a->type == object) {
-            if (a->childrenLength != b->childrenLength) {
-                return 0;
-            }
-            for (int i = 0; i < a->childrenLength ; i++) {
-                if (!jsonIsEqualScheme(a->children[i], b->children[i])) {
+int isChildrenEqual(JsonNode* a, JsonNode* b) {
+    if (a->childrenLength != b->childrenLength) {
+        return 0;
+    }
+    for (int i = 0; i < a->childrenLength; i++) {
+        int found = 0;
+        for (int j = 0; j < b->childrenLength; j++) {
+            if (!strcmp(a->children[i]->key, b->children[j]->key)) {
+                found = 1;
+                if (!jsonIsEqualScheme(a->children[i], b->children[j])) {
                     return 0;
                 }
             }
-            return 1;
+        }
+        if (!found) {
+            return 0;
+        }
+    }
+}
+
+int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
+    if (a->type == b->type && strcmp(a->key, b->key) == 0) {
+        if (a->type == JsonNodeTypeObject) {
+            return isChildrenEqual(a, b);
         }
         return 1;
     }
@@ -60,7 +87,7 @@ JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
 }
 
 void disposeJsonNode(JsonNode* node) {
-    if (node->type == object && node->childrenLength != 0 && node->children != NULL) {
+    if (node->type == JsonNodeTypeObject && node->childrenLength != 0 && node->children != NULL) {
         for (int i = 0; i < node->childrenLength; i++) {
             disposeJsonNode(node->children[0]);
         }
@@ -70,16 +97,5 @@ void disposeJsonNode(JsonNode* node) {
     }
     if (node != NULL) {
         free(node);
-    }
-}
-
-void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
-    if (size == 0) {
-        return;
-    }
-    if (node->children == NULL) {
-        node->children = (JsonNode**) calloc(size, sizeof(JsonNode*));
-    } else {
-        realloc(node->children, sizeof (JsonNode*) * size);
     }
 }

@@ -3,8 +3,8 @@
 //
 
 #include "profile-struct.h"
-#include "../../macro/macro.h"
+#include "../../../macro/macro.h"
 
 DTOConstructor(Profile,
-        DTOFieldConstructor("married", married, b, bool)
+        DTOFieldConstructor("married", married, b, JsonNodeTypeBool)
         DTOStructConstructor("contacts", contacts, Contacts))

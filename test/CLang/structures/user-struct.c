@@ -3,8 +3,8 @@
 //
 
 #include "user-struct.h"
-#include "../../macro/macro.h"
+#include "../../../macro/macro.h"
 
 DTOConstructor(User,
-        DTOFieldConstructor("age", age, i, number_i)
+        DTOFieldConstructor("age", age, i, JsonNodeTypeInt)
         DTOStructConstructor("profile", profile, Profile))

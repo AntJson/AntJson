@@ -4,11 +4,20 @@
 
 #include <stdint.h>
 #include "../json-node/json.h"
-#include "../jsmn-lib/jsmn.h"
+#include "../jsmn/jsmn.h"
 
 #ifndef DTOCONSTRUCTOR_JSON_PARSER_H
 #define DTOCONSTRUCTOR_JSON_PARSER_H
 
-JsonNode* jsonNodeParse(const char* source);
+#ifdef __cplusplus
+extern "C" {
+    namespace AntJson {
+#endif
+
+      JsonNode *jsonNodeParse(const char *source);
+
+#ifdef __cplusplus
+};};
+#endif
 
 #endif //DTOCONSTRUCTOR_JSON_PARSER_H

@@ -23,7 +23,6 @@
  */
 #ifndef JSMN_H
 #define JSMN_H
-
 #include <stddef.h>
 
 #ifdef __cplusplus
