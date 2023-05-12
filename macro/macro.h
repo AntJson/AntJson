@@ -2,9 +2,11 @@
 #include "../json-parser/json-parser.h"
 
 #ifdef ANT_JSON_MEMBER
-    #define StaticMember static
+    #define StaticMember
     #define StaticPrefix(structName, constructorName) structName::constructorName
+    #define Namespaced(value) AntJson::value
 #else
+    #define Namespaced(value) value
     #define StaticMember
     #define StaticPrefix(structName, constructorName) constructorName
 #endif
@@ -25,18 +27,27 @@
     #endif // __cplusplus
 #endif // AntKeySecure
 
-
 #ifndef AntFromJsonName
-#define AntFromJsonName(structName) structName##FromJson
+    #ifdef ANT_JSON_MEMBER
+        #define AntFromJsonName(structName) fromJson
+    #else
+        #define AntFromJsonName(structName) structName##FromJson
+    #endif // ANT_JSON_MEMBER
 #endif // AntFromJsonName
+
+#ifndef AntToJsonSchemeName
+    #ifdef ANT_JSON_MEMBER
+        #define AntToJsonSchemeName(structName) toJsonScheme
+    #else
+        #define AntToJsonSchemeName(structName) structName##ToJsonScheme
+    #endif // ANT_JSON_MEMBER
+#endif // AntToJsonSchemeName
+
 
 #ifndef AntChildrenUnpackName
 #define AntChildrenUnpackName(structName) _children__unpack__##structName
 #endif // AntChildrenUnpackName
 
-#ifndef AntToJsonSchemeName
-#define AntToJsonSchemeName(structName) structName##ToJsonScheme
-#endif // AntToJsonSchemeName
 
 #ifndef AntStruct
 #define AntStruct(jsonKey, fieldName, type)                                  \
@@ -47,7 +58,7 @@
         StaticPrefix(type, AntFromJsonName(type))(source->children[i], dest->fieldName);\
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        JsonNode* child = StaticPrefix(type, AntToJsonSchemeName(type))();              \
+        Namespaced(JsonNode)* child = StaticPrefix(type, AntToJsonSchemeName(type))();              \
         child->key = AntKeySecure(jsonKey);                                             \
         addChild(parent, child);                                                        \
     }
@@ -62,7 +73,7 @@
         dest->fieldName = source->children[i]->value.unionType;                         \
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        JsonNode* child = getEmptyJsonNode(AntKeySecure(jsonKey), nodeType);            \
+        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), nodeType);            \
         addChild(parent, child);                                                        \
     }
 #endif // AntValue
@@ -70,22 +81,22 @@
 #ifndef AntJson
 #define AntJson(structType, ...)                                                 \
     StaticMember AntChildrenUnpack(structType, ##__VA_ARGS__)\
-    StaticMember int AntFromJsonName(structType)(JsonNode* source, structType* dest) {  \
-        if (source->type == JsonNodeTypeObject) {                                       \
+    int StaticPrefix(structType, AntFromJsonName(structType))(Namespaced(JsonNode)* source, structType* dest) {  \
+        if (source->type == Namespaced(JsonNodeTypeObject)) {                                       \
             AntChildrenUnpackName(structType)(source, dest);                            \
         }                                                                               \
         const int flag = 0;                                                             \
         const int i = 0;                                                                \
-        JsonNode* parent = NULL;                                                        \
+        Namespaced(JsonNode)* parent = NULL;                                                        \
         __VA_ARGS__                                                                     \
         return 0;                                                                       \
     }                                                                                   \
-    StaticMember JsonNode* AntToJsonSchemeName(structType) () {                         \
+    Namespaced(JsonNode)* StaticPrefix(structType, AntToJsonSchemeName(structType)) () {                         \
         const int flag = 2;                                                             \
-        JsonNode* source = NULL;                                                        \
+        Namespaced(JsonNode)* source = NULL;                                                        \
         structType* dest = NULL;                                                        \
         const int i = 0;                                                                \
-        JsonNode* parent = getEmptyJsonNode(AntKeySecure(""), JsonNodeTypeObject);      \
+        Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonNodeTypeObject));      \
         __VA_ARGS__                                                                     \
         return parent;                                                                  \
     }                                                                                   \
@@ -94,10 +105,10 @@
 
 #ifndef AntChildrenUnpack
 #define AntChildrenUnpack(structType, ...)                                              \
-    int AntChildrenUnpackName(structType)(JsonNode* source, structType* dest) {         \
+    int AntChildrenUnpackName(structType)(Namespaced(JsonNode)* source, structType* dest) {         \
         const int flag = 1;                                                             \
-        JsonNode* parent = NULL;                                                        \
-        if (source->type != JsonNodeTypeObject) {                                       \
+        Namespaced(JsonNode)* parent = NULL;                                                        \
+        if (source->type != Namespaced(JsonNodeTypeObject)) {                                       \
             return -1;                                                                  \
         }                                                                               \
         for (int i = 0; i < source->childrenLength; i++) {                              \

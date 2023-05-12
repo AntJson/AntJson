@@ -5,25 +5,32 @@
 struct Account {
     char* username;
     char* password;
-    AntJson(Account,
-            AntValue("username", username, s, JsonNodeType::String)
-            AntValue("password", password, s, JsonNodeType::String)
-    )
+    static int fromJson(AntJson::JsonNode *source, Account *dest);
+    static AntJson::JsonNode *toJsonScheme();
 };
+AntJson(Account,
+        AntValue("username", username, s, AntJson::JsonNodeType::String)
+        AntValue("password", password, s, AntJson::JsonNodeType::String)
+)
 
+//int Account::AccountFromJson(JsonNode *source, Account *dest) {}
+//JsonNode* Account::AccountToJsonScheme() {}
 
 struct NVR {
     char* ip;
     char* name;
     int port;
     Account* account;
-    AntJson(NVR,
-            AntValue("ip", ip, s, JsonNodeTypeString)
-            AntValue("name", name, s, JsonNodeTypeString)
-            AntValue("port", port, i, JsonNodeTypeInt)
-            AntStruct("account", account, Account)
-    )
+    static int fromJson(AntJson::JsonNode* source, NVR* dest);
+    static AntJson::JsonNode* toJsonScheme();
 };
+
+AntJson(NVR,
+        AntValue("ip", ip, s, AntJson::JsonNodeType::String)
+        AntValue("name", name, s, AntJson::JsonNodeType::String)
+        AntValue("port", port, i, AntJson::JsonNodeType::Int)
+        AntStruct("account", account, Account)
+)
 
 
 
@@ -33,10 +40,11 @@ int main() {
 
     NVR nvr;
 
-    JsonNode* parsedJsonNode = jsonNodeParse(cc);
-    JsonNode* parsedJsonNode2 = NVR::NVRToJsonScheme();
+    AntJson::JsonNode* parsedJsonNode = AntJson::jsonNodeParse(cc);
+    AntJson::JsonNode* parsedJsonNode2 = NVR::toJsonScheme();
 
-    NVR::NVRFromJson(parsedJsonNode, &nvr);
+
+    NVR::fromJson(parsedJsonNode, &nvr);
     if (jsonIsEqualScheme(parsedJsonNode, parsedJsonNode2)) {
         std::cout << "Equals" << "\n";
     } else {

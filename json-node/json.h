@@ -8,6 +8,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+    namespace AntJson {
 #endif
 
 
@@ -78,7 +79,7 @@ int jsonIsEqualScheme(JsonNode *a, JsonNode *b);
 
 
 #ifdef __cplusplus
-}
+};};
 #endif
 
 #endif // JSON_H

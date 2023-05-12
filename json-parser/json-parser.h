@@ -11,12 +11,13 @@
 
 #ifdef __cplusplus
 extern "C" {
+    namespace AntJson {
 #endif
 
-JsonNode* jsonNodeParse(const char* source);
+      JsonNode *jsonNodeParse(const char *source);
 
 #ifdef __cplusplus
-};
+};};
 #endif
 
 #endif //DTOCONSTRUCTOR_JSON_PARSER_H
