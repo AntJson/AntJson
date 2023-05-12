@@ -32,7 +32,23 @@ AntJson(NVR,
         AntStruct("account", account, Account)
 )
 
+void parser(const char* json) {
+    NVR nvr;
+    // Parse scheme with meta from given JSON
+    AntJson::JsonNode* jsonScheme = AntJson::jsonNodeParse(json);
+    // Get JSON schema from DTO that we need to parse in
+    AntJson::JsonNode* dtoScheme = NVR::toJsonScheme();
+    // When we have both schemas we can compare them
+    if (AntJson::jsonIsEqualScheme(jsonScheme, dtoScheme)) {
+        // If schemas are equals we can parse it now and be sure
+        // that parsing will be successful
+        NVR::fromJson(jsonScheme, &nvr);
+    } else {
+        // If schemas are different throw error
+        throw;
+    }
 
+}
 
 int main() {
 
