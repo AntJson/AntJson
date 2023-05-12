@@ -26,8 +26,8 @@ struct Account {
     char* password;
 
     // Needed declaration for macro usage
-    static int fromJson(AntJson::JsonNode *source, Account *dest);
-    static AntJson::JsonNode *toJsonScheme();
+    static int fromJson(Ant::JsonNode *source, Account *dest);
+    static Ant::JsonNode *toJsonScheme();
 };
 ...
 // account.cpp
@@ -37,8 +37,8 @@ struct Account {
 // Main macro for constructor
 AntJson(Account,
     // Macro for member type if it's primitive and not object
-    AntValue("username", username, s, AntJson::JsonNodeType::String)
-    AntValue("password", password, s, AntJson::JsonNodeType::String)
+    AntValue("username", username, s, Ant::JsonNodeType::String)
+    AntValue("password", password, s, Ant::JsonNodeType::String)
 )
 ```
 
@@ -53,8 +53,8 @@ struct NVR {
     Account* account;
 
     // Needed declaration for macro usage
-    static int fromJson(AntJson::JsonNode* source, NVR* dest);
-    static AntJson::JsonNode* toJsonScheme();
+    static int fromJson(Ant::JsonNode* source, NVR* dest);
+    static Ant::JsonNode* toJsonScheme();
 };
 ...
 // nvr.cpp
@@ -64,9 +64,9 @@ struct NVR {
 // Main macro for constructor
 AntJson(NVR,
     // Macro for member type if it's primitive and not object
-    AntValue("ip", ip, s, AntJson::JsonNodeType::String)
-    AntValue("name", name, s, AntJson::JsonNodeType::String)
-    AntValue("port", port, i, AntJson::JsonNodeType::Int)
+    AntValue("ip", ip, s, Ant::JsonNodeType::String)
+    AntValue("name", name, s, Ant::JsonNodeType::String)
+    AntValue("port", port, i, Ant::JsonNodeType::Int)
     // Macro for member type if it's sub-struct
     AntStruct("account", account, Account)
 )
@@ -77,11 +77,11 @@ AntJson(NVR,
 void parser(const char* json) {
     NVR nvr;
     // Parse scheme with meta from given JSON
-    AntJson::JsonNode* jsonScheme = AntJson::jsonNodeParse(json);
+    Ant::JsonNode* jsonScheme = Ant::jsonNodeParse(json);
     // Get JSON schema from DTO that we need to parse in
-    AntJson::JsonNode* dtoScheme = NVR::toJsonScheme();
+    Ant::JsonNode* dtoScheme = NVR::toJsonScheme();
     // When we have both schemas we can compare them
-    if (AntJson::jsonIsEqualScheme(jsonScheme, dtoScheme)) {
+    if (Ant::jsonIsEqualScheme(jsonScheme, dtoScheme)) {
         // If schemas are equals we can parse it now and be sure
         // that parsing will be successful
         NVR::fromJson(jsonScheme, &nvr);

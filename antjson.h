@@ -2,6 +2,10 @@
 // Created by danysmall on 5/11/23.
 //
 
+#ifdef __cplusplus
+    #define ANT_JSON_MEMBER
+#endif
+
 #ifndef DTOCONSTRUCTOR_ANTJSON_H
 #define DTOCONSTRUCTOR_ANTJSON_H
 
