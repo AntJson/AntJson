@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-    namespace AntJson {
+    namespace Ant {
 #endif
 
       JsonNode *jsonNodeParse(const char *source);

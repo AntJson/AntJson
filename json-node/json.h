@@ -8,18 +8,11 @@
 
 #ifdef __cplusplus
 extern "C" {
-    namespace AntJson {
+    namespace Ant {
 #endif
 
 
 #ifdef __cplusplus
-
-#define JsonNodeTypeObject JsonNodeType::Object
-#define JsonNodeTypeInt JsonNodeType::Int
-#define JsonNodeTypeFloat JsonNodeType::Float
-#define JsonNodeTypeString JsonNodeType::String
-#define JsonNodeTypeBool JsonNodeType::Bool
-#define JsonNodeTypeNull JsonNodeType::Null
 
 typedef enum class
 JsonNodeType {
