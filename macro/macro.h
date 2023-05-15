@@ -1,6 +1,42 @@
 #include "../json-node/json.h"
 #include "../json-parser/json-parser.h"
 
+#ifndef AntString
+#define AntString String
+#endif
+
+#ifndef AntInt
+#define AntInt Int
+#endif
+
+#ifndef AntFloat
+#define AntFloat Float
+#endif
+
+#ifndef AntBool
+#define AntBool Bool
+#endif
+
+#ifndef AntUnionType
+    #define AntUnionType(cond) AntUnionType ## cond
+    #define AntUnionTypeString s
+    #define AntUnionTypeInt i
+    #define AntUnionTypeFloat f
+    #define AntUnionTypeBool b
+#endif // AntUnionType
+
+#ifndef AntJsonNodeType
+    #ifdef __cplusplus
+        #define AntJsonNodeType(cond) AntJsonNodeType ## cond
+        #define AntJsonNodeTypeString Ant::JsonNodeType::String
+        #define AntJsonNodeTypeInt Ant::JsonNodeType::Int
+        #define AntJsonNodeTypeFloat Ant::JsonNodeType::Float
+        #define AntJsonNodeTypeBool Ant::JsonNodeType::Bool
+    #else
+        #define AntJsonNodeType(cond) JsonNodeType ## cond
+    #endif // __cplusplus
+#endif // AntJsonNodeType
+
 #ifdef ANT_JSON_MEMBER
     #define StaticMember
     #define StaticPrefix(structName, constructorName) structName::constructorName
@@ -67,15 +103,15 @@
 #endif // AntStruct
 
 #ifndef AntValue
-#define AntValue(jsonKey, fieldName, unionType, nodeType)                    \
+#define AntValue(jsonKey, fieldName, nodeType)                                     \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
-        dest->fieldName = source->value.unionType;                                      \
+        dest->fieldName = source->value.AntUnionType(nodeType);                         \
     }                                                                                   \
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        dest->fieldName = source->children[i]->value.unionType;                         \
+        dest->fieldName = source->children[i]->value.AntUnionType(nodeType);            \
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), nodeType);            \
+        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));\
         addChild(parent, child);                                                        \
     }
 #endif // AntValue
