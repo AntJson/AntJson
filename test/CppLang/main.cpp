@@ -1,6 +1,7 @@
 #define ANT_JSON_MEMBER
 #include "../../antjson.h"
 #include <iostream>
+#include <vector>
 
 struct Account {
     char* username;
@@ -20,8 +21,8 @@ struct NVR {
     char* ip;
     char* name;
     int port;
-    Account* account;
-    int numbersArray[];
+    Account account;
+    std::vector<int> numbersArray;
 
     // Needed declaration for macro usage
     static int fromJson(Ant::JsonNode* source, NVR* dest);
@@ -38,27 +39,11 @@ AntJson(NVR,
         AntStruct("account", account, Account)
 )
 
-void parser(const char* json) {
-    NVR nvr;
-    // Parse scheme with meta from given JSON
-    Ant::JsonNode* jsonScheme = Ant::jsonNodeParse(json);
-    // Get JSON schema from DTO that we need to parse in
-    Ant::JsonNode* dtoScheme = NVR::toJsonScheme();
-    // When we have both schemas we can compare them
-    if (Ant::jsonIsEqualScheme(jsonScheme, dtoScheme)) {
-        // If schemas are equals we can parse it now and be sure
-        // that parsing will be successful
-        NVR::fromJson(jsonScheme, &nvr);
-    } else {
-        // If schemas are different throw error
-        throw;
-    }
 
-}
 
 int main() {
 
-    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [\"1\": {\"smth\": 4}, 2]}\n";
+    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, 3, 4]}\n";
 
     NVR nvr;
 
@@ -71,4 +56,6 @@ int main() {
     } else {
         std::cout << "No-Equals" << "\n";
     }
+
+    return 0;
 }

@@ -18,7 +18,7 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
 }
 
 int addChild(JsonNode* node, JsonNode* child) {
-    if (node->type != JsonNodeTypeObject) {
+    if (node->type != JsonNodeTypeObject && node->type != JsonNodeTypeArray) {
         return -1;
     }
     child->parent = node;
@@ -69,7 +69,7 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
 
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
     if (a->type == b->type && strcmp(a->key, b->key) == 0) {
-        if (a->type == JsonNodeTypeObject) {
+        if (a->type == JsonNodeTypeObject || a->type == JsonNodeTypeArray) {
             return isChildrenEqual(a, b);
         }
         return 1;

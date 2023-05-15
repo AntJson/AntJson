@@ -4,6 +4,8 @@
 
 #ifdef __cplusplus
     #define ANT_JSON_MEMBER
+    #define ANT_USE_REFERENCES
+    #define ANT_USE_VECTOR
 #endif
 
 #ifndef DTOCONSTRUCTOR_ANTJSON_H

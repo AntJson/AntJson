@@ -1,6 +1,17 @@
 #include "../json-node/json.h"
 #include "../json-parser/json-parser.h"
 
+#ifdef ANT_USE_REFERENCES
+    #define AntReference(exp) &exp
+#else
+    #define AntReference(exp) exp
+#endif // ANT_USE_REFERENCES
+
+#ifdef ANT_USE_VECTOR
+    #define AntArrayAppend(array, value, index) array.push_back(value)
+#else
+    #define AntArrayAppend(array, value, index) array[index] = value
+#endif // ANT_USE_VECTOR
 
 #ifndef AntTypes
 #define AntTypes
@@ -15,77 +26,77 @@
 
 #ifndef AntTypeCast
 #define AntTypeCast(cond) AntTypeCast ## cond
-    #define AntTypeCastString (char*)
-    #define AntTypeCastInt (int)
-    #define AntTypeCastFloat (float)
-    #define AntTypeCastBool (int)
-    #define AntTypeCastArray
+#define AntTypeCastString (char*)
+#define AntTypeCastInt (int)
+#define AntTypeCastFloat (float)
+#define AntTypeCastBool (int)
+#define AntTypeCastArray
 #endif
 
 #ifndef AntUnionType
-    #define AntUnionType(cond, ...) AntUnionType ## cond
-    #define AntUnionTypeString(...) s
-    #define AntUnionTypeInt(...) i
-    #define AntUnionTypeFloat(...) f
-    #define AntUnionTypeBool(...) b
-    #define AntUnionTypeArray(...) AntUnionType ## __VA_ARGS__()
+#define AntUnionType(cond, ...) AntUnionType ## cond
+#define AntUnionTypeString(...) s
+#define AntUnionTypeInt(...) i
+#define AntUnionTypeFloat(...) f
+#define AntUnionTypeBool(...) b
+#define AntUnionTypeArray(...) AntUnionType ## __VA_ARGS__()
 #endif // AntUnionType
 
 #ifndef AntJsonNodeType
-    #ifdef __cplusplus
-        #define AntJsonNodeType(cond) AntJsonNodeType ## cond
-        #define AntJsonNodeTypeString Ant::JsonNodeType::String
-        #define AntJsonNodeTypeInt Ant::JsonNodeType::Int
-        #define AntJsonNodeTypeFloat Ant::JsonNodeType::Float
-        #define AntJsonNodeTypeBool Ant::JsonNodeType::Bool
-        #define AntJsonNodeTypeArray Ant::JsonNodeType::Array
-    #else
-        #define AntJsonNodeType(cond) JsonNodeType ## cond
-    #endif // __cplusplus
+#ifdef __cplusplus
+#define AntJsonNodeType(cond) AntJsonNodeType ## cond
+#define AntJsonNodeTypeString Ant::JsonNodeType::String
+#define AntJsonNodeTypeInt Ant::JsonNodeType::Int
+#define AntJsonNodeTypeFloat Ant::JsonNodeType::Float
+#define AntJsonNodeTypeBool Ant::JsonNodeType::Bool
+#define AntJsonNodeTypeArray Ant::JsonNodeType::Array
+#else
+#define AntJsonNodeType(cond) JsonNodeType ## cond
+#endif // __cplusplus
 #endif // AntJsonNodeType
 
 #ifdef ANT_JSON_MEMBER
-    #define StaticMember
-    #define StaticPrefix(structName, constructorName) structName::constructorName
-    #define Namespaced(value) Ant::value
-    #define JsonType(type) JsonNodeType::type
+#define StaticMember
+#define StaticPrefix(structName, constructorName) structName::constructorName
+#define Namespaced(value) Ant::value
+#define JsonType(type) JsonNodeType::type
 #else
-    #define Namespaced(value) value
+#define Namespaced(value) value
     #define StaticMember
     #define StaticPrefix(structName, constructorName) constructorName
     #define JsonType(type) JsonNodeType##type
 #endif
 
 #ifdef __cplusplus
-    #include <cstring>
-    #include <cstdlib>
+#include <cstring>
+#include <cstdlib>
 #else
-    #include <string.h>
+#include <string.h>
     #include <stdlib.h>
 #endif // __cplusplus
 
 #ifndef AntKeySecure
-    #ifdef __cplusplus
-        #define AntKeySecure(jsonKey) (char*)jsonKey
-    #else
-        #define AntKeySecure(jsonKey) jsonKey
-    #endif // __cplusplus
+#ifdef __cplusplus
+#define AntKeySecure(jsonKey) (char*)jsonKey
+#else
+#define AntKeySecure(jsonKey) jsonKey
+#endif // __cplusplus
 #endif // AntKeySecure
 
 #ifndef AntFromJsonName
-    #ifdef ANT_JSON_MEMBER
-        #define AntFromJsonName(structName) fromJson
-    #else
-        #define AntFromJsonName(structName) structName##FromJson
-    #endif // ANT_JSON_MEMBER
+#ifdef ANT_JSON_MEMBER
+#define AntFromJsonName(structName) fromJson
+#else
+#define AntFromJsonName(structName) structName##FromJson
+#endif // ANT_JSON_MEMBER
 #endif // AntFromJsonName
 
 #ifndef AntToJsonSchemeName
-    #ifdef ANT_JSON_MEMBER
-        #define AntToJsonSchemeName(structName) toJsonScheme
-    #else
-        #define AntToJsonSchemeName(structName) structName##ToJsonScheme
-    #endif // ANT_JSON_MEMBER
+#ifdef ANT_JSON_MEMBER
+#define AntToJsonSchemeName(structName) toJsonScheme
+#else
+#define AntToJsonSchemeName(structName) structName##ToJsonScheme
+#endif // ANT_JSON_MEMBER
 #endif // AntToJsonSchemeName
 
 
@@ -96,10 +107,10 @@
 #ifndef AntStruct
 #define AntStruct(jsonKey, fieldName, type)                                  \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
-        StaticPrefix(type, AntFromJsonName(type))(source, dest->fieldName);             \
+        StaticPrefix(type, AntFromJsonName(type))(source, AntReference(dest->fieldName));             \
     }                                                                                   \
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        StaticPrefix(type, AntFromJsonName(type))(source->children[i], dest->fieldName);\
+        StaticPrefix(type, AntFromJsonName(type))(source->children[i], AntReference(dest->fieldName));\
     }                                                                                   \
     if (flag == 2) {                                                                    \
         Namespaced(JsonNode)* child = StaticPrefix(type, AntToJsonSchemeName(type))();              \
@@ -111,43 +122,52 @@
 
 #ifndef AntArrayChild
 #define AntArrayChild(cond) AntArrayChild ## cond
-    #define AntArrayChildString(fieldName, unionType)
-    #define AntArrayChildInt(fieldName, unionType)
-    #define AntArrayChildFloat(fieldName, unionType)
-    #define AntArrayChildBool(fieldName, unionType)
-    #define AntArrayChildArray(fieldName, unionType) dest->fieldName[j] = source->children[j]->value.unionType
+#define AntArrayChildString(fieldName, unionType)
+#define AntArrayChildInt(fieldName, unionType)
+#define AntArrayChildFloat(fieldName, unionType)
+#define AntArrayChildBool(fieldName, unionType)
+#define AntArrayChildArray(fieldName, unionType) AntArrayAppend(dest->fieldName, source->children[i]->children[j]->value.unionType, j)
 #endif // AntArrayChild
 
 #ifndef AntArrayAssign
 #define AntArrayAssign(nodeType) AntArrayAssign ## nodeType
-    #define AntArrayAssignInt(exp) exp
-    #define AntArrayAssignString(exp) exp
-    #define AntArrayAssignFloat(exp) exp
-    #define AntArrayAssignBool(exp) exp
-    #define AntArrayAssignArray(exp)
+#define AntArrayAssignInt(exp) exp
+#define AntArrayAssignString(exp) exp
+#define AntArrayAssignFloat(exp) exp
+#define AntArrayAssignBool(exp) exp
+#define AntArrayAssignArray(exp)
 #endif // AntArrayAssign
 
 #ifndef AntArrayChildrenAssign
 #define AntArrayChildrenAssign(nodeType) AntArrayChildrenAssign ## nodeType
-    #define AntArrayChildrenAssignInt(exp) exp
-    #define AntArrayChildrenAssignString(exp) exp
-    #define AntArrayChildrenAssignFloat(exp) exp
-    #define AntArrayChildrenAssignBool(exp) exp
-    #define AntArrayChildrenAssignArray(exp)
-#endif
+#define AntArrayChildrenAssignInt(dest, join, source) dest join source
+#define AntArrayChildrenAssignString(dest, join, source) \
+    dest = (char*)malloc(sizeof(char) * strlen(source));\
+    strcpy(dest, source)
+#define AntArrayChildrenAssignFloat(dest, join, source) dest join source
+#define AntArrayChildrenAssignBool(dest, join, source) dest join source
+#define AntArrayChildrenAssignArray(dest, join, source)
+#endif // AntArrayChildrenAssign
+
+#ifndef AntAllocArray
+#define AntAllocArray(nodeType) AntAllocArray ## nodeType
+
+#define AntAllocArrayInt
+
+#endif // AntAllocArray
 
 #ifndef AntValue
 #define AntValue(jsonKey, fieldName, nodeType, ...)                                     \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                              \
-        if (source->type == AntJsonNodeType(Array)) {                           \
-            for (int j = 0; j < source->childrenLength; j++) {                      \
-                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__)); \
-            }                                                                      \
-        }                                                                               \
         AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));\
     }                                                                                   \
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        AntArrayChildrenAssign(nodeType)(dest->fieldName = source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));            \
+        if (source->children[i]->type == AntJsonNodeType(Array)) {                           \
+            for (int j = 0; j < source->children[i]->childrenLength; j++) {                      \
+                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__)); \
+            }                                                                      \
+        }                                                                               \
+        AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));            \
     }                                                                                   \
     if (flag == 2) {                                                                    \
         Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));\
