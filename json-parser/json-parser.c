@@ -65,6 +65,29 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
             i += (value.size * 2);
             continue;
         }
+
+        if (value.type == JSMN_ARRAY) {
+            uint32_t arrayNodesCount = 0;
+            for (uint32_t j = i + 1; j < tokensCount; j++) {
+                if (tokens[j].start >= value.end) {
+                    break;
+                }
+                arrayNodesCount++;
+            }
+            arrayNodesCount--;
+
+            char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
+            strncpy(keyValue, source + key.start, key.end - key.start);
+            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeArray);
+            addChild(node, child);
+
+            jsmntok_t objectTokens[arrayNodesCount];
+            memcpy(objectTokens, tokens + i + 1, (arrayNodesCount) * sizeof(*tokens));
+            tokensToNodes(objectTokens, arrayNodesCount, child, source);
+            i += (arrayNodesCount);
+
+            continue;
+        }
     }
     return tokensCount;
 }
@@ -86,7 +109,7 @@ JsonNode* jsonNodeParse(const char* source) {
     jsmntok_t tokensWithoutRootObject[parsedCount - 1];
     memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
 
-    tokensToNodes(tokensWithoutRootObject, parsedCount, node, source);
+    tokensToNodes(tokensWithoutRootObject, parsedCount - 1, node, source);
     return node;
 }
 

@@ -1,28 +1,34 @@
 #include "../json-node/json.h"
 #include "../json-parser/json-parser.h"
 
-#ifndef AntString
+
+#ifndef AntTypes
+#define AntTypes
+
 #define AntString String
-#endif
-
-#ifndef AntInt
 #define AntInt Int
-#endif
-
-#ifndef AntFloat
 #define AntFloat Float
-#endif
-
-#ifndef AntBool
 #define AntBool Bool
+#define AntArray Array
+
+#endif // AntTypes
+
+#ifndef AntTypeCast
+#define AntTypeCast(cond) AntTypeCast ## cond
+    #define AntTypeCastString (char*)
+    #define AntTypeCastInt (int)
+    #define AntTypeCastFloat (float)
+    #define AntTypeCastBool (int)
+    #define AntTypeCastArray
 #endif
 
 #ifndef AntUnionType
-    #define AntUnionType(cond) AntUnionType ## cond
-    #define AntUnionTypeString s
-    #define AntUnionTypeInt i
-    #define AntUnionTypeFloat f
-    #define AntUnionTypeBool b
+    #define AntUnionType(cond, ...) AntUnionType ## cond
+    #define AntUnionTypeString(...) s
+    #define AntUnionTypeInt(...) i
+    #define AntUnionTypeFloat(...) f
+    #define AntUnionTypeBool(...) b
+    #define AntUnionTypeArray(...) AntUnionType ## __VA_ARGS__()
 #endif // AntUnionType
 
 #ifndef AntJsonNodeType
@@ -32,6 +38,7 @@
         #define AntJsonNodeTypeInt Ant::JsonNodeType::Int
         #define AntJsonNodeTypeFloat Ant::JsonNodeType::Float
         #define AntJsonNodeTypeBool Ant::JsonNodeType::Bool
+        #define AntJsonNodeTypeArray Ant::JsonNodeType::Array
     #else
         #define AntJsonNodeType(cond) JsonNodeType ## cond
     #endif // __cplusplus
@@ -86,7 +93,6 @@
 #define AntChildrenUnpackName(structName) _children__unpack__##structName
 #endif // AntChildrenUnpackName
 
-
 #ifndef AntStruct
 #define AntStruct(jsonKey, fieldName, type)                                  \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
@@ -102,13 +108,46 @@
     }
 #endif // AntStruct
 
+
+#ifndef AntArrayChild
+#define AntArrayChild(cond) AntArrayChild ## cond
+    #define AntArrayChildString(fieldName, unionType)
+    #define AntArrayChildInt(fieldName, unionType)
+    #define AntArrayChildFloat(fieldName, unionType)
+    #define AntArrayChildBool(fieldName, unionType)
+    #define AntArrayChildArray(fieldName, unionType) dest->fieldName[j] = source->children[j]->value.unionType
+#endif // AntArrayChild
+
+#ifndef AntArrayAssign
+#define AntArrayAssign(nodeType) AntArrayAssign ## nodeType
+    #define AntArrayAssignInt(exp) exp
+    #define AntArrayAssignString(exp) exp
+    #define AntArrayAssignFloat(exp) exp
+    #define AntArrayAssignBool(exp) exp
+    #define AntArrayAssignArray(exp)
+#endif // AntArrayAssign
+
+#ifndef AntArrayChildrenAssign
+#define AntArrayChildrenAssign(nodeType) AntArrayChildrenAssign ## nodeType
+    #define AntArrayChildrenAssignInt(exp) exp
+    #define AntArrayChildrenAssignString(exp) exp
+    #define AntArrayChildrenAssignFloat(exp) exp
+    #define AntArrayChildrenAssignBool(exp) exp
+    #define AntArrayChildrenAssignArray(exp)
+#endif
+
 #ifndef AntValue
-#define AntValue(jsonKey, fieldName, nodeType)                                     \
-    if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
-        dest->fieldName = source->value.AntUnionType(nodeType);                         \
+#define AntValue(jsonKey, fieldName, nodeType, ...)                                     \
+    if (flag == 0 && !strcmp(source->key, jsonKey)) {                              \
+        if (source->type == AntJsonNodeType(Array)) {                           \
+            for (int j = 0; j < source->childrenLength; j++) {                      \
+                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__)); \
+            }                                                                      \
+        }                                                                               \
+        AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));\
     }                                                                                   \
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        dest->fieldName = source->children[i]->value.AntUnionType(nodeType);            \
+        AntArrayChildrenAssign(nodeType)(dest->fieldName = source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));            \
     }                                                                                   \
     if (flag == 2) {                                                                    \
         Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));\

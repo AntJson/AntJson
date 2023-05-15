@@ -22,16 +22,18 @@ JsonNodeType {
     String  = 3,
     Bool    = 4,
     Null    = 5,
+    Array   = 6,
 };
 #else
 typedef enum
 JsonNodeType_t {
-    JsonNodeTypeObject  = 0,
-    JsonNodeTypeInt     = 1,
-    JsonNodeTypeFloat   = 2,
-    JsonNodeTypeString  = 3,
-    JsonNodeTypeBool    = 4,
-    JsonNodeTypeNull    = 5,
+    JsonNodeTypeObject      = 0,
+    JsonNodeTypeInt         = 1,
+    JsonNodeTypeFloat       = 2,
+    JsonNodeTypeString      = 3,
+    JsonNodeTypeBool        = 4,
+    JsonNodeTypeNull        = 5,
+    JsonNodeTypeArray       = 6,
 } JsonNodeType;
 #endif
 

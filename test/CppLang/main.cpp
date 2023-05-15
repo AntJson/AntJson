@@ -16,13 +16,12 @@ AntJson(Account,
         AntValue("password", password, AntString)
 )
 
-//AntValueTest("password", password, Ant::JsonNodeType::String)
-
 struct NVR {
     char* ip;
     char* name;
     int port;
     Account* account;
+    int numbersArray[];
 
     // Needed declaration for macro usage
     static int fromJson(Ant::JsonNode* source, NVR* dest);
@@ -34,6 +33,7 @@ AntJson(NVR,
         AntValue("ip", ip, AntString)
         AntValue("name", name, AntString)
         AntValue("port", port, AntInt)
+        AntValue("test", numbersArray, AntArray, AntInt)
         // Macro for member type if it's sub-struct
         AntStruct("account", account, Account)
 )
@@ -58,13 +58,12 @@ void parser(const char* json) {
 
 int main() {
 
-    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777}\n";
+    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [\"1\": {\"smth\": 4}, 2]}\n";
 
     NVR nvr;
 
     Ant::JsonNode* parsedJsonNode = Ant::jsonNodeParse(cc);
     Ant::JsonNode* parsedJsonNode2 = NVR::toJsonScheme();
-
 
     NVR::fromJson(parsedJsonNode, &nvr);
     if (jsonIsEqualScheme(parsedJsonNode, parsedJsonNode2)) {
