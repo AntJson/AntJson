@@ -11,10 +11,12 @@ struct Account {
     static Ant::JsonNode *toJsonScheme();
 };
 AntJson(Account,
-// Macro for member type if it's primitive and not object
-        AntValue("username", username, s, Ant::JsonNodeType::String)
-        AntValue("password", password, s, Ant::JsonNodeType::String)
+        // Macro for member type if it's primitive and not object
+        AntValue("username", username, AntString)
+        AntValue("password", password, AntString)
 )
+
+//AntValueTest("password", password, Ant::JsonNodeType::String)
 
 struct NVR {
     char* ip;
@@ -28,12 +30,12 @@ struct NVR {
 };
 
 AntJson(NVR,
-// Macro for member type if it's primitive and not object
-        AntValue("ip", ip, s, Ant::JsonNodeType::String)
-                AntValue("name", name, s, Ant::JsonNodeType::String)
-                AntValue("port", port, i, Ant::JsonNodeType::Int)
-                // Macro for member type if it's sub-struct
-                AntStruct("account", account, Account)
+        // Macro for member type if it's primitive and not object
+        AntValue("ip", ip, AntString)
+        AntValue("name", name, AntString)
+        AntValue("port", port, AntInt)
+        // Macro for member type if it's sub-struct
+        AntStruct("account", account, Account)
 )
 
 void parser(const char* json) {

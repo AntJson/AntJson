@@ -7,8 +7,8 @@ typedef struct Account_s {
 } Account;
 
 AntJson(Account,
-        AntValue("username", username, s, JsonNodeTypeString)
-        AntValue("password", password, s, JsonNodeTypeString)
+        AntValue("username", username, String)
+        AntValue("password", password, String)
 )
 
 typedef struct NVR_s {
@@ -19,9 +19,9 @@ typedef struct NVR_s {
 } NVR;
 
 AntJson(NVR,
-        AntValue("ip", ip, s, JsonNodeTypeString)
-        AntValue("name", name, s, JsonNodeTypeString)
-        AntValue("port", port, i, JsonNodeTypeInt)
+        AntValue("ip", ip, String)
+        AntValue("name", name, String)
+        AntValue("port", port, Int)
         AntStruct("account", account, Account)
 )
 

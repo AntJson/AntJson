@@ -1,5 +1,24 @@
 # AntJson — Pretty way to manage DTOs in C/C++
 
+## Last changes:
+Removed double type definitions in macro decorators. Previously they were:
+```c++
+AntValue("username", username, s, Ant::JsonNodeType::String)
+```
+and now they look like:
+```c++
+AntValue("username", username, AntString)
+```
+
+Types mapping that have to be in `AntValue`:
+| Macro definition | C | C++ |
+| --- | --- | --- |
+| AntString | String | Ant::JsonNodeType::String |
+| AntInt | Int | Ant::JsonNodeType::Int |
+| AntFloat | Float | Ant::JsonNodeType::Float |
+| AntBool | Bool | Ant::JsonNodeType::Bool |
+
+
 As an example of JSON that will come from the client we'll use this one:
 ```json
 {
@@ -37,8 +56,8 @@ struct Account {
 // Main macro for constructor
 AntJson(Account,
     // Macro for member type if it's primitive and not object
-    AntValue("username", username, s, Ant::JsonNodeType::String)
-    AntValue("password", password, s, Ant::JsonNodeType::String)
+    AntValue("username", username, AntString)
+    AntValue("password", password, AntString)
 )
 ```
 
@@ -64,9 +83,9 @@ struct NVR {
 // Main macro for constructor
 AntJson(NVR,
     // Macro for member type if it's primitive and not object
-    AntValue("ip", ip, s, Ant::JsonNodeType::String)
-    AntValue("name", name, s, Ant::JsonNodeType::String)
-    AntValue("port", port, i, Ant::JsonNodeType::Int)
+    AntValue("ip", ip, AntString)
+    AntValue("name", name, AntString)
+    AntValue("port", port, AntInt)
     // Macro for member type if it's sub-struct
     AntStruct("account", account, Account)
 )
