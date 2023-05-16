@@ -48,6 +48,8 @@ typedef union JsonValue_t {
 typedef struct JsonNode_t {
     // Json type of field related to current key
     JsonNodeType type;
+    // Type of array elements
+    JsonNodeType arrayElementsType;
     // Key in json map
     char *key;
     // Pointer to parent node

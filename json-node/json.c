@@ -12,8 +12,6 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
         JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
         memcpy(newArray, node->children, (size - 1) * sizeof(JsonNode*));
         node->children = newArray;
-//        reallocarray(node->children, size, sizeof(JsonNode*));
-//        realloc(node->children, sizeof (JsonNode*) * size);
     }
 }
 
@@ -47,7 +45,32 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
     }
 }
 
+uint8_t getChildType(JsonNode* node) {
+    if (node->arrayElementsType != JsonNodeTypeObject) {
+        return node->arrayElementsType;
+    }
+    if (node->childrenLength <= 0) {
+        return -1;
+    }
+    uint8_t prev = node->children[0]->type;
+    for (uint32_t i = 1; i < node->childrenLength; i++) {
+        if (prev != node->children[i]->type) {
+            return -1;
+        }
+        prev = node->children[i]->type;
+    }
+    return prev;
+}
+
 int isChildrenEqual(JsonNode* a, JsonNode* b) {
+    if (a->type == JsonNodeTypeArray) {
+        uint8_t aChildType = getChildType(a);
+        uint8_t bChildType = getChildType(b);
+        if (aChildType == bChildType && aChildType >= 0) {
+            return 1;
+        }
+        return 0;
+    }
     if (a->childrenLength != b->childrenLength) {
         return 0;
     }
@@ -65,6 +88,7 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
             return 0;
         }
     }
+    return 1;
 }
 
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {

@@ -149,8 +149,18 @@
 #define AntArrayChildrenAssignArray(dest, join, source)
 #endif // AntArrayChildrenAssign
 
+#ifndef AntArrayChildrenType
+#define AntArrayChildrenType(nodeType) AntArrayChildrenType_ ## nodeType
+
+    #define AntArrayChildrenType_(type)
+    #define AntArrayChildrenType_Int(type) child->arrayElementsType = type
+    #define AntArrayChildrenType_String(type) child->arrayElementsType = type
+    #define AntArrayChildrenType_Float(type) child->arrayElementsType = type
+    #define AntArrayChildrenType_Bool(type) child->arrayElementsType = type
+
+#endif // AntArrayChildrenType
+
 #ifndef AntAllocArray
-#define AntAllocArray(nodeType) AntAllocArray ## nodeType
 
 #define AntAllocArrayInt
 
@@ -170,7 +180,8 @@
         AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));            \
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));\
+        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));                                \
+        AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));\
         addChild(parent, child);                                                        \
     }
 #endif // AntValue
