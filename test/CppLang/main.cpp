@@ -41,7 +41,7 @@ AntJson(NVR,
 
 int main() {
 
-    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, \"Jopa\", 3, 4]}\n";
+    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, 3, 4]}\n";
 
     NVR nvr;
 
