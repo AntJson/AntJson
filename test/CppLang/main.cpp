@@ -40,8 +40,7 @@ AntJson(NVR,
 )
 
 int main() {
-
-    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, \"qweqwe\", 4]}\n";
+    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, 3, 4]}\n";
 
     if (NVR::isEqualScheme(cc)) {
         std::cout << "Equals" << "\n";

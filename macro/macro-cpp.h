@@ -164,52 +164,74 @@
 
 #endif // AntAllocArray
 
+
 #ifndef AntValue
-#define AntValue(jsonKey, fieldName, nodeType, ...)                                     \
-    if (flag == 0 && !strcmp(source->key, jsonKey)) {                              \
-        AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));\
-    }                                                                                   \
-    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        if (source->children[i]->type == AntJsonNodeType(Array)) {                           \
-            for (int j = 0; j < source->children[i]->childrenLength; j++) {                      \
-                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__)); \
-            }                                                                      \
-        }                                                                               \
-        AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));            \
-    }                                                                                   \
-    if (flag == 2) {                                                                    \
-        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));                                \
-        AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));\
-        addChild(parent, child);                                                        \
+#define AntValue(jsonKey, fieldName, nodeType, ...)         \
+    _AntValue0(jsonKey, fieldName, nodeType, __VA_ARGS__)    \
+    _AntValue1(jsonKey, fieldName, nodeType, __VA_ARGS__)    \
+    _AntValue2(jsonKey, fieldName, nodeType, __VA_ARGS__)   \
+
+#define _AntValue0(jsonKey, fieldName, nodeType, ...)                                                \
+    if (flag == 0 && !strcmp(source->key, jsonKey)) {                                                   \
+        AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));  \
+    }
+
+#define _AntValue1(jsonKey, fieldName, nodeType, ...)                                                                        \
+    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                                                              \
+        if (source->children[i]->type == AntJsonNodeType(Array)) {                                                              \
+            for (int j = 0; j < source->children[i]->childrenLength; j++) {                                                     \
+                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__));                                        \
+            }                                                                                                                   \
+        }                                                                                                                       \
+        AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));   \
+    }
+
+#define _AntValue2(jsonKey, fieldName, nodeType, ...)                                                    \
+if (flag == 2) {                                                                                            \
+        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));   \
+        AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));                                    \
+        addChild(parent, child);                                                                            \
     }
 #endif // AntValue
 
 #ifndef AntJson
-#define AntJson(structType, ...)                                                 \
-    StaticMember AntChildrenUnpack(structType, ##__VA_ARGS__)                    \
-    int AntFromJsonName(structType)(Namespaced(JsonNode)* source, structType* dest) {  \
-        if (source->type == Namespaced(JsonType(Object))) {                                       \
-            AntChildrenUnpackName(structType)(source, dest);                            \
-        }                                                                               \
-        const int flag = 0;                                                             \
-        const int i = 0;                                                                \
-        Namespaced(JsonNode)* parent = NULL;                                                        \
-        __VA_ARGS__                                                                     \
-        return 0;                                                                       \
-    }                                                                                   \
-    Namespaced(JsonNode)* AntToJsonSchemeName(structType) () {                         \
-        const int flag = 2;                                                             \
-        Namespaced(JsonNode)* source = NULL;                                                        \
-        structType* dest = NULL;                                                        \
-        const int i = 0;                                                                \
-        Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonType(Object)));      \
-        __VA_ARGS__                                                                     \
-        return parent;                                                                  \
-    }                                                                            \
-    AntConstructor(structType)                                                   \
-    AntIsEqualScheme(structType)\
+#define AntJson(structType, ...)                    \
+    AntChildrenUnpack(structType, ##__VA_ARGS__)    \
+    AntFromJson(structType, ##__VA_ARGS__)          \
+    AntToJsonSchema(structType, ##__VA_ARGS__)      \
+    AntConstructor(structType)                      \
+    AntIsEqualScheme(structType)                    \
 
 #endif // AntJson
+
+#ifndef AntToJsonSchema
+#define AntToJsonSchema(structType, ...)                                                                    \
+    inline Namespaced(JsonNode)* AntToJsonSchemeName(structType) () {                                       \
+        const int flag = 2;                                                                                 \
+        Namespaced(JsonNode)* source = NULL;                                                                \
+        structType* dest = NULL;                                                                            \
+        const int i = 0;                                                                                    \
+        Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonType(Object)));    \
+        __VA_ARGS__                                                                                         \
+        return parent;                                                                                      \
+    }
+#endif // AntToJsonSchema
+
+
+#ifndef AntFromJson
+#define AntFromJson(structType, ...)                                                            \
+    inline int AntFromJsonName(structType)(Namespaced(JsonNode)* source, structType* dest) {    \
+        if (source->type == Namespaced(JsonType(Object))) {                                     \
+            AntChildrenUnpackName(structType)(source, dest);                                    \
+        }                                                                                       \
+        const int flag = 0;                                                                     \
+        const int i = 0;                                                                        \
+        Namespaced(JsonNode)* parent = NULL;                                                    \
+        __VA_ARGS__                                                                             \
+        return 0;                                                                               \
+    }
+#endif // AntFromJson
+
 
 #ifndef AntChildrenUnpack
 #define AntChildrenUnpack(structType, ...)                                              \
@@ -227,11 +249,11 @@
 #endif // AntChildrenUnpack
 
 #ifndef AntConstructor
-#define AntConstructor(structType) \
-    structType::structType(const std::string &json) { \
+#define AntConstructor(structType)                                              \
+    structType::structType(const std::string &json) {                           \
         Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str()); \
-        AntFromJsonName(structType)(schema, this); \
-        Namespaced(disposeJsonNode)(schema); \
+        AntFromJsonName(structType)(schema, this);                              \
+        Namespaced(disposeJsonNode)(schema);                                    \
     }
 #endif // AntConstructor
 
