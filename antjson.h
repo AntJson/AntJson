@@ -6,12 +6,15 @@
     #define ANT_JSON_MEMBER
     #define ANT_USE_REFERENCES
     #define ANT_USE_VECTOR
+
+    #include "macro/macro-cpp.h"
+#else
+    #include "macro/macro-c.h"
 #endif
 
 #ifndef DTOCONSTRUCTOR_ANTJSON_H
 #define DTOCONSTRUCTOR_ANTJSON_H
 
-#include "macro/macro.h"
 #include "json-node/json.h"
 #include "json-parser/json-parser.h"
 

@@ -3,7 +3,7 @@
 //
 
 #include "user-struct.h"
-#include "../../../macro/macro.h"
+#include "../../../macro/macro-c.h"
 
 DTOConstructor(User,
         DTOFieldConstructor("age", age, i, JsonNodeTypeInt)

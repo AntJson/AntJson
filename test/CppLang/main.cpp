@@ -4,12 +4,12 @@
 #include <vector>
 
 struct Account {
-    char* username;
-    char* password;
+    std::string username;
+    std::string password;
 
-    // Needed declaration for macro usage
-    static int fromJson(Ant::JsonNode *source, Account *dest);
-    static Ant::JsonNode *toJsonScheme();
+    Account() = default;
+    explicit Account(const std::string& json);
+    static int isEqualScheme(const std::string& json);
 };
 AntJson(Account,
         // Macro for member type if it's primitive and not object
@@ -18,15 +18,15 @@ AntJson(Account,
 )
 
 struct NVR {
-    char* ip;
-    char* name;
-    int port;
-    Account account;
+    std::string ip{};
+    std::string name{};
+    int port{};
+    Account account{};
     std::vector<int> numbersArray;
 
-    // Needed declaration for macro usage
-    static int fromJson(Ant::JsonNode* source, NVR* dest);
-    static Ant::JsonNode* toJsonScheme();
+    NVR() = default;
+    explicit NVR(const std::string& json);
+    static int isEqualScheme(const std::string& json);
 };
 
 AntJson(NVR,
@@ -41,16 +41,11 @@ AntJson(NVR,
 
 int main() {
 
-    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, 3, 4]}\n";
+    const char* cc = "{\"account\":{\"password\":\"oo2929212____dsfds\",\"username\":\"somename\"},\"ip\":\"109.18.2.100\",\"name\":\"nvr4ik\",\"port\":37777, \"test\": [1, 2, \"qweqwe\", 4]}\n";
 
-    NVR nvr;
-
-    Ant::JsonNode* parsedJsonNode = Ant::jsonNodeParse(cc);
-    Ant::JsonNode* parsedJsonNode2 = NVR::toJsonScheme();
-
-    if (jsonIsEqualScheme(parsedJsonNode, parsedJsonNode2)) {
+    if (NVR::isEqualScheme(cc)) {
         std::cout << "Equals" << "\n";
-        NVR::fromJson(parsedJsonNode, &nvr);
+        NVR nvr(cc);
     } else {
         std::cout << "No-Equals" << "\n";
     }

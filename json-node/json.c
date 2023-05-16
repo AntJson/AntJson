@@ -111,15 +111,16 @@ JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
 }
 
 void disposeJsonNode(JsonNode* node) {
-    if (node->type == JsonNodeTypeObject && node->childrenLength != 0 && node->children != NULL) {
+    if (node == NULL) {
+        return;
+    }
+    if ((node->type == JsonNodeTypeObject || node->type == JsonNodeTypeArray) && node->childrenLength != 0 && node->children != NULL) {
         for (int i = 0; i < node->childrenLength; i++) {
-            disposeJsonNode(node->children[0]);
+            disposeJsonNode(node->children[i]);
         }
     }
     if (node->children != NULL) {
         free(node->children);
     }
-    if (node != NULL) {
-        free(node);
-    }
+    free(node);
 }
