@@ -62,42 +62,37 @@ uint8_t getChildType(JsonNode* node) {
     return prev;
 }
 
-int isChildrenEqual(JsonNode* a, JsonNode* b) {
-    if (a->type == JsonNodeTypeArray) {
-        uint8_t aChildType = getChildType(a);
-        uint8_t bChildType = getChildType(b);
+int isChildrenEqual(JsonNode* reference, JsonNode* schema) {
+    if (reference->type == JsonNodeTypeArray) {
+        uint8_t aChildType = getChildType(reference);
+        uint8_t bChildType = getChildType(schema);
         if (aChildType == bChildType && aChildType >= 0) {
             if (aChildType != JsonNodeTypeObject) {
                 return 1;
             }
-            if (a->childrenLength == 0 && b->childrenLength == 0) {
+            if (reference->childrenLength == 0 && schema->childrenLength == 0) {
                 return 1;
             }
-            if (a->childrenLength > 0 && b->childrenLength > 0) {
-                const char* tempAKey = a->children[0]->key;
-                const char* tempBKey = b->children[0]->key;
-
-                a->children[0]->key = "";
-                b->children[0]->key = "";
-
-                int result =  jsonIsEqualScheme(a->children[0], b->children[0]);
-                a->children[0]->key = (char*) tempAKey;
-                b->children[0]->key = (char*) tempBKey;
+            if (reference->childrenLength > 0 && schema->childrenLength > 0) {
+                int result = 1;
+                for (uint32_t j = 0; j < schema->childrenLength; j++) {
+                    result = result && jsonIsEqualScheme(reference->children[0], schema->children[j]);
+                }
                 return result;
             }
             return 0;
         }
         return 0;
     }
-    if (a->childrenLength != b->childrenLength) {
+    if (reference->childrenLength != schema->childrenLength) {
         return 0;
     }
-    for (int i = 0; i < a->childrenLength; i++) {
+    for (int i = 0; i < reference->childrenLength; i++) {
         int found = 0;
-        for (int j = 0; j < b->childrenLength; j++) {
-            if (!strcmp(a->children[i]->key, b->children[j]->key)) {
+        for (int j = 0; j < schema->childrenLength; j++) {
+            if (!strcmp(reference->children[i]->key, schema->children[j]->key)) {
                 found = 1;
-                if (!jsonIsEqualScheme(a->children[i], b->children[j])) {
+                if (!jsonIsEqualScheme(reference->children[i], schema->children[j])) {
                     return 0;
                 }
             }
@@ -109,14 +104,14 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
     return 1;
 }
 
-int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
+int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
 
-    if (a == NULL || b == NULL) {
+    if (reference == NULL || schema == NULL) {
         return 0;
     }
-    if (a->type == b->type && strcmp(a->key, b->key) == 0) {
-        if (a->type == JsonNodeTypeObject || a->type == JsonNodeTypeArray) {
-            return isChildrenEqual(a, b);
+    if (reference->type == schema->type && strcmp(reference->key, schema->key) == 0) {
+        if (reference->type == JsonNodeTypeObject || reference->type == JsonNodeTypeArray) {
+            return isChildrenEqual(reference, schema);
         }
         return 1;
     }

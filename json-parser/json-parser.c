@@ -105,8 +105,13 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         }
 
         if (value.type == JSMN_OBJECT) {
-            char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
-            strncpy(keyValue, source + key.start, key.end - key.start);
+            char* keyValue;
+            if (node->type ==  JsonNodeTypeArray) {
+                keyValue = "";
+            } else {
+                keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
+                strncpy(keyValue, source + key.start, key.end - key.start);
+            }
             JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
             addChild(node, child);
 

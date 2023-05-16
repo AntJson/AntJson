@@ -59,6 +59,10 @@ int main() {
                        "      \"password\":\"oo2929212____dsfds\",\n"
                        "      \"username\":\"somename\"\n"
                        "    }\n"
+                       "    {\n"
+                       "      \"password\":\"oo2929212____dsfds\",\n"
+                       "      \"username\":\"somename\"\n"
+                       "    }\n"
                        "  ]\n"
                        "}";
 

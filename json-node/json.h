@@ -74,7 +74,7 @@ void disposeJsonNode(JsonNode *node);
 int addChild(JsonNode *node, JsonNode *child);
 
 // Checks if two JsonNodes has the same scheme
-int jsonIsEqualScheme(JsonNode *a, JsonNode *b);
+int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema);
 
 
 #ifdef __cplusplus
