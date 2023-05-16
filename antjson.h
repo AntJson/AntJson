@@ -8,6 +8,7 @@
     #define ANT_USE_VECTOR
 
     #include "macro/macro-cpp.h"
+    #include "macro/macro-array-cpp.h"
 #else
     #include "macro/macro-c.h"
 #endif

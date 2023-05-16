@@ -1,9 +1,7 @@
 #define ANT_JSON_MEMBER
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include "../../antjson.h"
-#include "../../macro/macro-array-cpp.h"
 struct Account {
     std::string username;
     std::string password;
