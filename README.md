@@ -69,7 +69,8 @@ struct NVR {
     char* ip;
     char* name;
     int port;
-    Account* account;
+    Account account;
+    std::vector<int> numbersArray;
 
     // Needed declaration for macro usage
     static int fromJson(Ant::JsonNode* source, NVR* dest);
@@ -88,6 +89,8 @@ AntJson(NVR,
     AntValue("port", port, AntInt)
     // Macro for member type if it's sub-struct
     AntStruct("account", account, Account)
+    // Array definition
+    AntValue("test", numbersArray, AntArray, AntInt)
 )
 ```
 
