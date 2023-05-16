@@ -111,7 +111,7 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
             addChild(node, child);
 
             jsmntok_t objectTokens[value.size * 2];
-            memcpy(objectTokens, tokens + i + 2, (value.size * 2) * sizeof(*tokens));
+            memcpy(objectTokens, tokens + i + multiplier, (value.size * 2) * sizeof(*tokens));
             tokensToNodes(objectTokens, value.size * 2, child, source);
             i += (value.size * 2);
             continue;

@@ -1,3 +1,6 @@
+#ifndef ANT_MACRO_CPP
+#define ANT_MACRO_CPP
+
 #include "../json-node/json.h"
 #include "../json-parser/json-parser.h"
 
@@ -50,6 +53,7 @@
 #define AntJsonNodeTypeFloat Ant::JsonNodeType::Float
 #define AntJsonNodeTypeBool Ant::JsonNodeType::Bool
 #define AntJsonNodeTypeArray Ant::JsonNodeType::Array
+#define AntJsonNodeTypeObject Ant::JsonNodeType::Object
 #else
 #define AntJsonNodeType(cond) JsonNodeType ## cond
 #endif // __cplusplus
@@ -167,16 +171,9 @@
 
 #ifndef AntValue
 #define AntValue(jsonKey, fieldName, nodeType, ...)         \
-    _AntValue0(jsonKey, fieldName, nodeType, __VA_ARGS__)    \
-    _AntValue1(jsonKey, fieldName, nodeType, __VA_ARGS__)    \
-    _AntValue2(jsonKey, fieldName, nodeType, __VA_ARGS__)   \
-
-#define _AntValue0(jsonKey, fieldName, nodeType, ...)                                                \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                                   \
         AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));  \
-    }
-
-#define _AntValue1(jsonKey, fieldName, nodeType, ...)                                                                        \
+    }\
     if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                                                              \
         if (source->children[i]->type == AntJsonNodeType(Array)) {                                                              \
             for (int j = 0; j < source->children[i]->childrenLength; j++) {                                                     \
@@ -184,10 +181,8 @@
             }                                                                                                                   \
         }                                                                                                                       \
         AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));   \
-    }
-
-#define _AntValue2(jsonKey, fieldName, nodeType, ...)                                                    \
-if (flag == 2) {                                                                                            \
+    } \
+    if (flag == 2) {                                                                                            \
         Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));   \
         AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));                                    \
         addChild(parent, child);                                                                            \
@@ -264,3 +259,6 @@ if (flag == 2) {                                                                
         return Namespaced(jsonIsEqualScheme)(AntToJsonSchemeName(structType)(), schema);   \
     }
 #endif // AntIsEqualScheme
+
+
+#endif // ANT_MACRO_CPP

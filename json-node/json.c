@@ -46,10 +46,10 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
 }
 
 uint8_t getChildType(JsonNode* node) {
-    if (node->arrayElementsType != JsonNodeTypeObject) {
+    if (node->arrayElementsType != JsonNodeTypeUndefined || node->childrenLength == 0) {
         return node->arrayElementsType;
     }
-    if (node->childrenLength <= 0) {
+    if (node->childrenLength < 0) {
         return -1;
     }
     uint8_t prev = node->children[0]->type;
@@ -67,7 +67,25 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
         uint8_t aChildType = getChildType(a);
         uint8_t bChildType = getChildType(b);
         if (aChildType == bChildType && aChildType >= 0) {
-            return 1;
+            if (aChildType != JsonNodeTypeObject) {
+                return 1;
+            }
+            if (a->childrenLength == 0 && b->childrenLength == 0) {
+                return 1;
+            }
+            if (a->childrenLength > 0 && b->childrenLength > 0) {
+                const char* tempAKey = a->children[0]->key;
+                const char* tempBKey = b->children[0]->key;
+
+                a->children[0]->key = "";
+                b->children[0]->key = "";
+
+                int result =  jsonIsEqualScheme(a->children[0], b->children[0]);
+                a->children[0]->key = (char*) tempAKey;
+                b->children[0]->key = (char*) tempBKey;
+                return result;
+            }
+            return 0;
         }
         return 0;
     }
@@ -92,6 +110,10 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
 }
 
 int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
+
+    if (a == NULL || b == NULL) {
+        return 0;
+    }
     if (a->type == b->type && strcmp(a->key, b->key) == 0) {
         if (a->type == JsonNodeTypeObject || a->type == JsonNodeTypeArray) {
             return isChildrenEqual(a, b);

@@ -16,24 +16,26 @@ extern "C" {
 
 typedef enum class
 JsonNodeType {
-    Object  = 0,
-    Int     = 1,
-    Float   = 2,
-    String  = 3,
-    Bool    = 4,
-    Null    = 5,
-    Array   = 6,
+    Undefined   = 0,
+    Object      = 1,
+    Int         = 2,
+    Float       = 3,
+    String      = 4,
+    Bool        = 5,
+    Null        = 6,
+    Array       = 7,
 };
 #else
 typedef enum
 JsonNodeType_t {
-    JsonNodeTypeObject      = 0,
-    JsonNodeTypeInt         = 1,
-    JsonNodeTypeFloat       = 2,
-    JsonNodeTypeString      = 3,
-    JsonNodeTypeBool        = 4,
-    JsonNodeTypeNull        = 5,
-    JsonNodeTypeArray       = 6,
+    JsonNodeTypeUndefined   = 0,
+    JsonNodeTypeObject      = 1,
+    JsonNodeTypeInt         = 2,
+    JsonNodeTypeFloat       = 3,
+    JsonNodeTypeString      = 4,
+    JsonNodeTypeBool        = 5,
+    JsonNodeTypeNull        = 6,
+    JsonNodeTypeArray       = 7,
 } JsonNodeType;
 #endif
 
