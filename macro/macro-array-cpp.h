@@ -37,10 +37,4 @@
 
 
 #endif // AntStructArray
-
 #endif //ANTJSON_MACRO_ARRAY_CPP_H
-//if (source->children[i]->type == Ant::JsonNodeType::Array) {
-//for (int j = 0; j < source->children[i]->childrenLength; j++) {
-//dest->numbersArray.push_back(source->children[i]->children[j]->value.i);
-//}
-//};
