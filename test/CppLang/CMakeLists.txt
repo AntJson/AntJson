@@ -7,6 +7,8 @@ set (
         ../../jsmn/jsmn.c
         ../../json-node/json.c
         ../../json-parser/json-parser.c
+        dtos/account/account.cpp
+        dtos/nvr/nvr.cpp
 )
 
 set(
