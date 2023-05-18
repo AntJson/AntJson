@@ -6,6 +6,7 @@
     #define ANT_JSON_MEMBER
     #define ANT_USE_REFERENCES
     #define ANT_USE_VECTOR
+    #define ANT_MULTI_FILE_CONSTRUCTORS
 
     #include "macro/macro-cpp.h"
     #include "macro/macro-array-cpp.h"

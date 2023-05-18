@@ -16,6 +16,14 @@
     #define AntArrayAppend(array, value, index) array[index] = value
 #endif // ANT_USE_VECTOR
 
+#ifdef ANT_MULTI_FILE_CONSTRUCTORS
+    #define AntFromJsonName(structName) structName::fromJson
+    #define AntToJsonSchemeName(structName) structName::toJsonScheme
+#else
+    #define AntFromJsonName(structName) structName##fromJson
+    #define AntToJsonSchemeName(structName) structName##ToJsonScheme
+#endif
+
 #ifndef AntTypes
 #define AntTypes
 
@@ -86,23 +94,6 @@
 #define AntKeySecure(jsonKey) jsonKey
 #endif // __cplusplus
 #endif // AntKeySecure
-
-#ifndef AntFromJsonName
-#ifdef ANT_JSON_MEMBER
-#define AntFromJsonName(structName) structName##FromJson
-#else
-#define AntFromJsonName(structName) structName##FromJson
-#endif // ANT_JSON_MEMBER
-#endif // AntFromJsonName
-
-#ifndef AntToJsonSchemeName
-#ifdef ANT_JSON_MEMBER
-#define AntToJsonSchemeName(structName) structName##ToJsonScheme
-#else
-#define AntToJsonSchemeName(structName) structName##ToJsonScheme
-#endif // ANT_JSON_MEMBER
-#endif // AntToJsonSchemeName
-
 
 #ifndef AntChildrenUnpackName
 #define AntChildrenUnpackName(structName) _children__unpack__##structName
