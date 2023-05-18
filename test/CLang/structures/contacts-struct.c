@@ -3,7 +3,7 @@
 //
 
 #include "contacts-struct.h"
-#include "../../../macro/macro.h"
+#include "../../../macro/macro-c.h"
 
 DTOConstructor(Contacts,
         DTOFieldConstructor("number", number, s, JsonNodeTypeString))

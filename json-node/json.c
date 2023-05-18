@@ -12,13 +12,11 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
         JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
         memcpy(newArray, node->children, (size - 1) * sizeof(JsonNode*));
         node->children = newArray;
-//        reallocarray(node->children, size, sizeof(JsonNode*));
-//        realloc(node->children, sizeof (JsonNode*) * size);
     }
 }
 
 int addChild(JsonNode* node, JsonNode* child) {
-    if (node->type != JsonNodeTypeObject) {
+    if (node->type != JsonNodeTypeObject && node->type != JsonNodeTypeArray) {
         return -1;
     }
     child->parent = node;
@@ -47,16 +45,54 @@ void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
     }
 }
 
-int isChildrenEqual(JsonNode* a, JsonNode* b) {
-    if (a->childrenLength != b->childrenLength) {
+uint8_t getChildType(JsonNode* node) {
+    if (node->arrayElementsType != JsonNodeTypeUndefined || node->childrenLength == 0) {
+        return node->arrayElementsType;
+    }
+    if (node->childrenLength < 0) {
+        return -1;
+    }
+    uint8_t prev = node->children[0]->type;
+    for (uint32_t i = 1; i < node->childrenLength; i++) {
+        if (prev != node->children[i]->type) {
+            return -1;
+        }
+        prev = node->children[i]->type;
+    }
+    return prev;
+}
+
+int isChildrenEqual(JsonNode* reference, JsonNode* schema) {
+    if (reference->type == JsonNodeTypeArray) {
+        uint8_t aChildType = getChildType(reference);
+        uint8_t bChildType = getChildType(schema);
+        if (aChildType == bChildType && aChildType >= 0) {
+            if (aChildType != JsonNodeTypeObject) {
+                return 1;
+            }
+            if (reference->childrenLength == 0 && schema->childrenLength == 0) {
+                return 1;
+            }
+            if (reference->childrenLength > 0 && schema->childrenLength > 0) {
+                int result = 1;
+                for (uint32_t j = 0; j < schema->childrenLength; j++) {
+                    result = result && jsonIsEqualScheme(reference->children[0], schema->children[j]);
+                }
+                return result;
+            }
+            return 0;
+        }
         return 0;
     }
-    for (int i = 0; i < a->childrenLength; i++) {
+    if (reference->childrenLength != schema->childrenLength) {
+        return 0;
+    }
+    for (int i = 0; i < reference->childrenLength; i++) {
         int found = 0;
-        for (int j = 0; j < b->childrenLength; j++) {
-            if (!strcmp(a->children[i]->key, b->children[j]->key)) {
+        for (int j = 0; j < schema->childrenLength; j++) {
+            if (!strcmp(reference->children[i]->key, schema->children[j]->key)) {
                 found = 1;
-                if (!jsonIsEqualScheme(a->children[i], b->children[j])) {
+                if (!jsonIsEqualScheme(reference->children[i], schema->children[j])) {
                     return 0;
                 }
             }
@@ -65,12 +101,17 @@ int isChildrenEqual(JsonNode* a, JsonNode* b) {
             return 0;
         }
     }
+    return 1;
 }
 
-int jsonIsEqualScheme(JsonNode* a, JsonNode* b) {
-    if (a->type == b->type && strcmp(a->key, b->key) == 0) {
-        if (a->type == JsonNodeTypeObject) {
-            return isChildrenEqual(a, b);
+int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
+
+    if (reference == NULL || schema == NULL) {
+        return 0;
+    }
+    if (reference->type == schema->type && strcmp(reference->key, schema->key) == 0) {
+        if (reference->type == JsonNodeTypeObject || reference->type == JsonNodeTypeArray) {
+            return isChildrenEqual(reference, schema);
         }
         return 1;
     }
@@ -87,15 +128,16 @@ JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
 }
 
 void disposeJsonNode(JsonNode* node) {
-    if (node->type == JsonNodeTypeObject && node->childrenLength != 0 && node->children != NULL) {
+    if (node == NULL) {
+        return;
+    }
+    if ((node->type == JsonNodeTypeObject || node->type == JsonNodeTypeArray) && node->childrenLength != 0 && node->children != NULL) {
         for (int i = 0; i < node->childrenLength; i++) {
-            disposeJsonNode(node->children[0]);
+            disposeJsonNode(node->children[i]);
         }
     }
     if (node->children != NULL) {
         free(node->children);
     }
-    if (node != NULL) {
-        free(node);
-    }
+    free(node);
 }

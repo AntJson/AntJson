@@ -1,13 +1,27 @@
 # AntJson — Pretty way to manage DTOs in C/C++
 
 ## Last changes:
-Removed double type definitions in macro decorators. Previously they were:
+
+> Note: array support for C++ only
+
+1. Removed double type definitions in macro decorators. Previously they were:
+    ```c++
+    AntValue("username", username, s, Ant::JsonNodeType::String)
+    ```
+    and now they look like:
+    ```c++
+    AntValue("username", username, AntString)
+    ```
+
+2. Added `std::vector` array support for c++. Usage:
 ```c++
-AntValue("username", username, s, Ant::JsonNodeType::String)
-```
-and now they look like:
-```c++
-AntValue("username", username, AntString)
+//          
+AntValue(
+        "numbers",  // Json key 
+        numbers,    // Field name
+        AntArray,   // Field type (array) 
+        AntInt      // Array type (base type like int | char* | float )
+)
 ```
 
 Types mapping that have to be in `AntValue`:
@@ -18,6 +32,7 @@ Types mapping that have to be in `AntValue`:
 | AntFloat | Float | Ant::JsonNodeType::Float |
 | AntBool | Bool | Ant::JsonNodeType::Bool |
 
+## Usage
 
 As an example of JSON that will come from the client we'll use this one:
 ```json
@@ -69,7 +84,8 @@ struct NVR {
     char* ip;
     char* name;
     int port;
-    Account* account;
+    Account account;
+    std::vector<int> numbersArray;
 
     // Needed declaration for macro usage
     static int fromJson(Ant::JsonNode* source, NVR* dest);
@@ -88,6 +104,8 @@ AntJson(NVR,
     AntValue("port", port, AntInt)
     // Macro for member type if it's sub-struct
     AntStruct("account", account, Account)
+    // Array definition
+    AntValue("test", numbersArray, AntArray, AntInt)
 )
 ```
 

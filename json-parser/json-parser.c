@@ -7,11 +7,32 @@
 #define DTOCONSTRUCTOR_JSON_PARSER_H
 
 uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, const char* source) {
-    for (uint32_t i = 0; i < tokensCount; i += 2) {
-        jsmntok_t key = tokens[i];
-        jsmntok_t value = tokens[i + 1];
+    uint8_t multiplier = 2;
+    if (node->type == JsonNodeTypeArray) {
+        multiplier = 1;
+    }
+    for (uint32_t i = 0; i < tokensCount; i += multiplier) {
+        jsmntok_t key;
+        jsmntok_t value;
+        if (node->type == JsonNodeTypeArray) {
+            key = tokens[i];
+            value = tokens[i];
+        } else {
+            key  = tokens[i];
+            value = tokens[i + 1];
+        }
 
         if (value.type == JSMN_STRING) {
+            if (node->type == JsonNodeTypeArray) {
+                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
+
+                char* valueString = (char*)malloc(sizeof (char) * (value.end - value.start));
+                valueString = strncpy(valueString, source + value.start, value.end - value.start);
+                child->value.s = valueString;
+                addChild(node, child);
+
+                continue;
+            }
             char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
             strncpy(keyValue, source + key.start, key.end - key.start);
             JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeString);
@@ -24,6 +45,36 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         }
 
         if (value.type == JSMN_PRIMITIVE) {
+            if (node->type == JsonNodeTypeArray) {
+                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
+
+                char* valueString = (char*)malloc(sizeof (char) * (value.end - value.start));
+                valueString = strncpy(valueString, source + value.start, value.end - value.start);
+                addChild(node, child);
+
+                if (valueString[0] == 'n') {
+                    child->type = JsonNodeTypeNull;
+                    child->value.s = NULL;
+                } else if (valueString[0] == 't') {
+                    child->type = JsonNodeTypeBool;
+                    child->value.b = 1;
+                } else if (valueString[0] == 'f') {
+                    child->type = JsonNodeTypeBool;
+                    child->value.b = 0;
+                } else {
+                    char* stopString;
+                    if (strstr(valueString, ".")) {
+                        child->type = JsonNodeTypeFloat;
+                        child->value.f = strtof(valueString, &stopString);
+                    } else {
+                        child->type = JsonNodeTypeInt;
+                        child->value.i = (int) strtol(valueString, &stopString, 10);
+                    }
+                }
+
+                continue;
+            }
+
             char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
             strncpy(keyValue, source + key.start, key.end - key.start);
             JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
@@ -54,15 +105,43 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         }
 
         if (value.type == JSMN_OBJECT) {
-            char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
-            strncpy(keyValue, source + key.start, key.end - key.start);
+            char* keyValue;
+            if (node->type ==  JsonNodeTypeArray) {
+                keyValue = "";
+            } else {
+                keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
+                strncpy(keyValue, source + key.start, key.end - key.start);
+            }
             JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
             addChild(node, child);
 
             jsmntok_t objectTokens[value.size * 2];
-            memcpy(objectTokens, tokens + i + 2, (value.size * 2) * sizeof(*tokens));
+            memcpy(objectTokens, tokens + i + multiplier, (value.size * 2) * sizeof(*tokens));
             tokensToNodes(objectTokens, value.size * 2, child, source);
             i += (value.size * 2);
+            continue;
+        }
+
+        if (value.type == JSMN_ARRAY) {
+            uint32_t arrayNodesCount = 0;
+            for (uint32_t j = i + 1; j < tokensCount; j++) {
+                if (tokens[j].start >= value.end) {
+                    break;
+                }
+                arrayNodesCount++;
+            }
+            arrayNodesCount--;
+
+            char* keyValue = (char*) malloc(sizeof(char) * (key.end - key.start));
+            strncpy(keyValue, source + key.start, key.end - key.start);
+            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeArray);
+            addChild(node, child);
+
+            jsmntok_t objectTokens[arrayNodesCount];
+            memcpy(objectTokens, tokens + i + 2, (arrayNodesCount) * sizeof(*tokens));
+            tokensToNodes(objectTokens, arrayNodesCount, child, source);
+            i += (arrayNodesCount);
+
             continue;
         }
     }
@@ -86,7 +165,7 @@ JsonNode* jsonNodeParse(const char* source) {
     jsmntok_t tokensWithoutRootObject[parsedCount - 1];
     memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
 
-    tokensToNodes(tokensWithoutRootObject, parsedCount, node, source);
+    tokensToNodes(tokensWithoutRootObject, parsedCount - 1, node, source);
     return node;
 }
 

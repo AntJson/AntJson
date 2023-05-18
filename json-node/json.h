@@ -16,22 +16,26 @@ extern "C" {
 
 typedef enum class
 JsonNodeType {
-    Object  = 0,
-    Int     = 1,
-    Float   = 2,
-    String  = 3,
-    Bool    = 4,
-    Null    = 5,
+    Undefined   = 0,
+    Object      = 1,
+    Int         = 2,
+    Float       = 3,
+    String      = 4,
+    Bool        = 5,
+    Null        = 6,
+    Array       = 7,
 };
 #else
 typedef enum
 JsonNodeType_t {
-    JsonNodeTypeObject  = 0,
-    JsonNodeTypeInt     = 1,
-    JsonNodeTypeFloat   = 2,
-    JsonNodeTypeString  = 3,
-    JsonNodeTypeBool    = 4,
-    JsonNodeTypeNull    = 5,
+    JsonNodeTypeUndefined   = 0,
+    JsonNodeTypeObject      = 1,
+    JsonNodeTypeInt         = 2,
+    JsonNodeTypeFloat       = 3,
+    JsonNodeTypeString      = 4,
+    JsonNodeTypeBool        = 5,
+    JsonNodeTypeNull        = 6,
+    JsonNodeTypeArray       = 7,
 } JsonNodeType;
 #endif
 
@@ -46,6 +50,8 @@ typedef union JsonValue_t {
 typedef struct JsonNode_t {
     // Json type of field related to current key
     JsonNodeType type;
+    // Type of array elements
+    JsonNodeType arrayElementsType;
     // Key in json map
     char *key;
     // Pointer to parent node
@@ -68,7 +74,7 @@ void disposeJsonNode(JsonNode *node);
 int addChild(JsonNode *node, JsonNode *child);
 
 // Checks if two JsonNodes has the same scheme
-int jsonIsEqualScheme(JsonNode *a, JsonNode *b);
+int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema);
 
 
 #ifdef __cplusplus
