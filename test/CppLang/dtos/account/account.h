@@ -2,7 +2,7 @@
 #define ANTJSON_ACCOUNT_H
 
 #include <string>
-#include "../../../../antjson.h"
+#include <antjson.h>
 
 struct Account {
     std::string username;

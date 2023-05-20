@@ -94,8 +94,8 @@
 #endif
 
 #ifdef __cplusplus
-#include <cstring>
-#include <cstdlib>
+#include <c++/13.1.1/cstring>
+#include <c++/13.1.1/cstdlib>
 #else
 #include <string.h>
     #include <stdlib.h>

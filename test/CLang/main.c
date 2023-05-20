@@ -1,5 +1,5 @@
-#include "../../antjson.h"
-#include "structures/user-struct.h"
+#include "antjson.h"
+
 
 typedef struct Account_s {
     char* username;

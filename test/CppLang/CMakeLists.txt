@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
-project(AntJsonTestBuild_CPP_LANG CXX)
-set(CMAKE_CXX_STANDARD 11)
+project(AntJsonTestCpp CXX)
+set(CMAKE_CXX_STANDARD 17)
 
 set (
         COMMON_SOURCES
-        ../../jsmn/jsmn.c
-        ../../json-node/json.c
-        ../../json-parser/json-parser.c
         dtos/account/account.cpp
         dtos/nvr/nvr.cpp
 )
@@ -15,4 +12,20 @@ set(
         EXECUTABLES
         main.cpp
 )
-add_executable(AntJsonTestBuild_CPP_LANG ${COMMON_SOURCES} ${EXECUTABLES})
+
+add_executable(AntJsonTestCpp ${COMMON_SOURCES} ${EXECUTABLES})
+
+target_include_directories(
+        AntJsonTestCpp
+        PUBLIC /home/danysmall/Projects/bitswar/antjson/lib
+)
+
+target_link_directories(
+        AntJsonTestCpp
+        PUBLIC /home/danysmall/Projects/bitswar/antjson/cmake-build-debug/lib
+)
+
+target_link_libraries(
+        AntJsonTestCpp
+        PUBLIC -lAntJson
+)
