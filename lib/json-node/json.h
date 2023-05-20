@@ -1,21 +1,14 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
-#ifdef __cplusplus
-extern "C" {
-    namespace Ant {
-#endif
+namespace Ant {
 
-
-#ifdef __cplusplus
-
-typedef enum class
-JsonNodeType {
+enum class JsonNodeType {
     Undefined   = 0,
     Object      = 1,
     Int         = 2,
@@ -25,19 +18,7 @@ JsonNodeType {
     Null        = 6,
     Array       = 7,
 };
-#else
-typedef enum
-JsonNodeType_t {
-    JsonNodeTypeUndefined   = 0,
-    JsonNodeTypeObject      = 1,
-    JsonNodeTypeInt         = 2,
-    JsonNodeTypeFloat       = 3,
-    JsonNodeTypeString      = 4,
-    JsonNodeTypeBool        = 5,
-    JsonNodeTypeNull        = 6,
-    JsonNodeTypeArray       = 7,
-} JsonNodeType;
-#endif
+
 
 typedef union JsonValue_t {
     int     i;
@@ -77,8 +58,6 @@ int addChild(JsonNode *node, JsonNode *child);
 int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema);
 
 
-#ifdef __cplusplus
-};};
-#endif
+};
 
 #endif // JSON_H

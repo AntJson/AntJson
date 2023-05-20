@@ -1,8 +1,8 @@
 #ifndef ANT_MACRO_CPP
 #define ANT_MACRO_CPP
 
+#include "macro-algo.h"
 #include "../json-node/json.h"
-#include "../json-parser/json-parser.h"
 
 #ifdef ANT_USE_REFERENCES
     #define AntReference(exp) &exp
@@ -251,7 +251,7 @@
 #ifndef AntConstructor
 #define AntConstructor(structType)                                              \
     structType::structType(const std::string &json) {                           \
-        Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str()); \
+        Namespaced(JsonNode)* schema = AntParseCallback(json); \
         AntFromJsonName(structType)(schema, this);                              \
         Namespaced(disposeJsonNode)(schema);                                    \
     }
@@ -260,7 +260,7 @@
 #ifndef AntIsEqualScheme
 #define AntIsEqualScheme(structType)                                \
     int structType::isEqualScheme(const std::string& json) {               \
-        Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str());   \
+        Namespaced(JsonNode)* schema = AntParseCallback(json);   \
         return Namespaced(jsonIsEqualScheme)(AntToJsonSchemeName(structType)(), schema);   \
     }
 #endif // AntIsEqualScheme

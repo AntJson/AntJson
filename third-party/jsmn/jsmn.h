@@ -8,6 +8,12 @@
 //#define JSMN_PARENT_LINKS
 
 #ifdef __cplusplus
+#define SIZE_T std::size_t
+#else
+#define SIZE_T size_t
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -67,7 +73,7 @@ typedef struct jsmn_parser {
     int toksuper;         /* superior token node, e.g. parent object or array */
 } jsmn_parser;
 
-JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
+JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const SIZE_T len,
                         jsmntok_t *tokens, const unsigned int num_tokens);
 
 JSMN_API void jsmn_init(jsmn_parser *parser);

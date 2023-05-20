@@ -3,6 +3,7 @@
 #include "dtos/nvr/nvr.h"
 
 int main() {
+
     const char* json = "{\n"
                        "  \"account\":{\n"
                        "    \"password\":\"oo2929212____dsfds\",\n"
@@ -26,10 +27,10 @@ int main() {
 
     if (NVR::isEqualScheme(json)) {
         std::cout << "Equals" << "\n";
-        NVR nvr(json);
     } else {
         std::cout << "No-Equals" << "\n";
     }
+    NVR nvr(json);
 
     return 0;
 }

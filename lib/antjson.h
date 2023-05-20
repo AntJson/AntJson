@@ -18,6 +18,6 @@
 #define DTOCONSTRUCTOR_ANTJSON_H
 
 #include "json-node/json.h"
-#include "json-parser/json-parser.h"
+#include "json-parsers/jsmn-parser/jsmn-parser.h"
 
 #endif //DTOCONSTRUCTOR_ANTJSON_H

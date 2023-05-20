@@ -1,6 +1,6 @@
 #include "antjson.h"
 
-
+extern JsonNode* jsmnParse(const char* json);
 typedef struct Account_s {
     char* username;
     char* password;
@@ -55,7 +55,9 @@ int main() {
     Account* acc = (Account*)malloc(sizeof (Account));
     nvr->account = acc;
 
-    JsonNode* parsedJsonNode = jsonNodeParse(cc);
+
+//    JsonNode* parsedJsonNode = jsonNodeParse(cc);
+    JsonNode* parsedJsonNode = jsmnParse(cc);
     JsonNode* parsedJsonNode2 = NVRToJsonScheme();
     NVRFromJson(parsedJsonNode, nvr);
 

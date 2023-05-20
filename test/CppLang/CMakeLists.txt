@@ -6,6 +6,7 @@ set (
         COMMON_SOURCES
         dtos/account/account.cpp
         dtos/nvr/nvr.cpp
+        ../../third-party/jsmn/jsmn.c
 )
 
 set(
@@ -18,6 +19,7 @@ add_executable(AntJsonTestCpp ${COMMON_SOURCES} ${EXECUTABLES})
 target_include_directories(
         AntJsonTestCpp
         PUBLIC /home/danysmall/Projects/bitswar/antjson/lib
+        PUBLIC ../../third-party
 )
 
 target_link_directories(
