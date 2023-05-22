@@ -27,7 +27,7 @@
 #ifndef AntUtilsDefine
     #ifdef ANT_MULTI_FILE_CONSTRUCTORS
     #define AntUtilsDefine(structType) \
-            explicit Account(const std::string& json); \
+            explicit structType(const std::string& json); \
             static int isEqualScheme(const std::string& json); \
             static inline int fromJson(Ant::JsonNode* source, structType* dest); \
             static inline Ant::JsonNode* toJsonScheme();
