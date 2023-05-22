@@ -14,8 +14,7 @@ extern "C" {
 
 #ifdef __cplusplus
 
-typedef enum class
-JsonNodeType {
+enum class JsonNodeType {
     Undefined   = 0,
     Object      = 1,
     Int         = 2,
@@ -24,6 +23,11 @@ JsonNodeType {
     Bool        = 5,
     Null        = 6,
     Array       = 7,
+};
+
+enum class UnpackFlag {
+    FromJson    = 0,
+    ToJson      = 1,
 };
 #else
 typedef enum

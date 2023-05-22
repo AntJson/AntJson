@@ -118,9 +118,6 @@
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                   \
         AntFromJsonName(type)(source, AntReference(dest->fieldName));             \
     }                                                                                   \
-    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                      \
-        AntFromJsonName(type)(source->children[i], AntReference(dest->fieldName));\
-    }                                                                                   \
     if (flag == 2) {                                                                    \
         Namespaced(JsonNode)* child = AntToJsonSchemeName(type)();              \
         child->key = AntKeySecure(jsonKey);                                             \
@@ -173,20 +170,34 @@
 
 #endif // AntAllocArray
 
+#ifndef AntAppendIf
+#define AntAppendIf(exp) AntAppendIf ## exp
+#define AntAppendIfInt(exp)
+#define AntAppendIfString(exp)
+#define AntAppendIfFloat(exp)
+#define AntAppendIfBool(exp)
+#define AntAppendIfArray(exp) exp
+#endif // AntAppendIf
+
+#ifndef AntAssignIf
+#define AntAssignIf(exp) AntAssignIf ## exp
+#define AntAssignIfInt(exp) exp
+#define AntAssignIfString(exp) exp
+#define AntAssignIfFloat(exp) exp
+#define AntAssignIfBool(exp) exp
+#define AntAssignIfArray(exp)
+#endif // AntAssignIf
 
 #ifndef AntValue
 #define AntValue(jsonKey, fieldName, nodeType, ...)         \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                                   \
-        AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));  \
+        AntAssignIf(nodeType)(AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));)  \
+        AntAppendIf(nodeType)(if (source->type == AntJsonNodeType(Array)) { \
+            for (int i = 0; i < source->childrenLength; i++) {\
+                AntArrayAppend(dest->numbersArray, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__), i);\
+            }\
+        })\
     }\
-    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                                                              \
-        if (source->children[i]->type == AntJsonNodeType(Array)) {                                                              \
-            for (int j = 0; j < source->children[i]->childrenLength; j++) {                                                     \
-                AntArrayChild(nodeType)(fieldName, AntUnionType(nodeType)(__VA_ARGS__));                                        \
-            }                                                                                                                   \
-        }                                                                                                                       \
-        AntArrayChildrenAssign(nodeType)(dest->fieldName, =, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__));   \
-    } \
     if (flag == 2) {                                                                                            \
         Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));   \
         AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));                                    \
@@ -207,12 +218,8 @@
 #ifndef AntToJsonSchema
 #define AntToJsonSchema(structType, ...)                                                                    \
     inline Namespaced(JsonNode)* AntToJsonSchemeName(structType) () {                                       \
-        const int flag = 2;                                                                                 \
-        Namespaced(JsonNode)* source = NULL;                                                                \
-        structType* dest = NULL;                                                                            \
-        const int i = 0;                                                                                    \
         Namespaced(JsonNode)* parent = getEmptyJsonNode(AntKeySecure(""), Namespaced(JsonType(Object)));    \
-        __VA_ARGS__                                                                                         \
+        AntChildrenUnpackName(structType)(nullptr, nullptr, parent, 2);                                         \
         return parent;                                                                                      \
     }
 #endif // AntToJsonSchema
@@ -222,12 +229,10 @@
 #define AntFromJson(structType, ...)                                                            \
     inline int AntFromJsonName(structType)(Namespaced(JsonNode)* source, structType* dest) {    \
         if (source->type == Namespaced(JsonType(Object))) {                                     \
-            AntChildrenUnpackName(structType)(source, dest);                                    \
+            AntChildrenUnpackName(structType)(source, dest, nullptr, 1);                        \
+            return 0;\
         }                                                                                       \
-        const int flag = 0;                                                                     \
-        const int i = 0;                                                                        \
-        Namespaced(JsonNode)* parent = NULL;                                                    \
-        __VA_ARGS__                                                                             \
+        AntChildrenUnpackName(structType)(source, dest, nullptr, 0); \
         return 0;                                                                               \
     }
 #endif // AntFromJson
@@ -235,15 +240,13 @@
 
 #ifndef AntChildrenUnpack
 #define AntChildrenUnpack(structType, ...)                                              \
-    inline int AntChildrenUnpackName(structType)(Namespaced(JsonNode)* source, structType* dest) {         \
-        const int flag = 1;                                                             \
-        Namespaced(JsonNode)* parent = NULL;                                                        \
-        if (source->type != Namespaced(JsonType(Object))) {                                       \
-            return -1;                                                                  \
-        }                                                                               \
-        for (int i = 0; i < source->childrenLength; i++) {                              \
-            __VA_ARGS__                                                                 \
-        }                                                                               \
+    inline int AntChildrenUnpackName(structType)(Namespaced(JsonNode)* source, structType* dest, Namespaced(JsonNode)    *parent, const int flag) {         \
+        if (source != nullptr && source->type == Ant::JsonNodeType::Object) { \
+            for (int j = 0; j < source->childrenLength; j++) { \
+                AntChildrenUnpackName(structType)(source->children[j], dest, parent, 0); \
+            } \
+        } \
+        __VA_ARGS__\
         return 0;                                                                       \
     }
 #endif // AntChildrenUnpack
