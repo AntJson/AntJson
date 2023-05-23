@@ -136,8 +136,8 @@ void disposeJsonNode(JsonNode* node) {
             disposeJsonNode(node->children[i]);
         }
     }
-    if (node->children != NULL) {
-        free(node->children);
-    }
-    free(node);
+//    if (node->children != NULL) {
+//        free(node->children);
+//    }
+//    free(node);
 }

@@ -263,8 +263,12 @@
 #ifndef AntIsEqualScheme
 #define AntIsEqualScheme(structType)                                \
     int structType::isEqualScheme(const std::string& json) {               \
-        Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str());   \
-        return Namespaced(jsonIsEqualScheme)(AntToJsonSchemeName(structType)(), schema);   \
+        Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str()); \
+        Namespaced(JsonNode)* dtoSchema = AntToJsonSchemeName(structType)();\
+        int result = Namespaced(jsonIsEqualScheme)(dtoSchema, schema);     \
+        Namespaced(disposeJsonNode)(schema);                        \
+        Namespaced(disposeJsonNode)(dtoSchema);\
+        return result;\
     }
 #endif // AntIsEqualScheme
 
