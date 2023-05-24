@@ -16,7 +16,7 @@ struct NVR {
 
     NVR() = default;
     explicit NVR(const std::string& json);
-    static int isEqualScheme(const std::string& json);
+    static int isEqualScheme(const std::string &json);
 
     static int fromJson(Ant::JsonNode* source, NVR* dest);
     static inline Ant::JsonNode* toJsonScheme();

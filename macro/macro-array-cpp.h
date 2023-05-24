@@ -18,15 +18,6 @@
             }\
         }\
     }                                            \
-    if (flag == 1 && !strcmp(source->children[i]->key, jsonKey)) {                     \
-        if (source->children[i]->type == AntJsonNodeType(Array)) {                     \
-            for (int j = 0; j < source->children[i]->childrenLength; j++) {                         \
-                arrType child;                  \
-                AntFromJsonName(arrType)(source->children[i]->children[j], &child);    \
-                AntPushArrayChild(dest, field, child);\
-            }\
-        }\
-    }                                           \
     if (flag == 2) {                            \
         Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(Array)); \
         child->arrayElementsType = AntJsonNodeType(Object);\

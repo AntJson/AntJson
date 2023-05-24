@@ -11,6 +11,11 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
     } else {
         JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
         memcpy(newArray, node->children, (size - 1) * sizeof(JsonNode*));
+
+//        for (int i = 0; i < node->childrenLength; i++) {
+//            disposeJsonNode(node->children[i]);
+//        }
+
         node->children = newArray;
     }
 }
@@ -19,30 +24,9 @@ int addChild(JsonNode* node, JsonNode* child) {
     if (node->type != JsonNodeTypeObject && node->type != JsonNodeTypeArray) {
         return -1;
     }
-    child->parent = node;
     reallocateJsonNodeChildren(node, node->childrenLength + 1);
     node->children[node->childrenLength++] = child;
-}
-
-void updateNode(JsonNode* node, JsonNodeType type, char* key, void* value) {
-    JsonValue* jValue;
-    node->type = type;
-    node->key = key;
-    switch (type)
-    {
-        case JsonNodeTypeObject:
-            node->children = (JsonNode**) value;
-            break;
-        case JsonNodeTypeInt:
-            node->value.i = (*(int*) value);
-            break;
-        case JsonNodeTypeFloat:
-            node->value.f = (*(float*) value);
-            break;
-        case JsonNodeTypeString:
-            node->value.s = (char*) value;
-            break;
-    }
+    return 0;
 }
 
 uint8_t getChildType(JsonNode* node) {
@@ -118,12 +102,29 @@ int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
     return 0;
 }
 
-JsonNode* getEmptyJsonNode(char* key, JsonNodeType type) {
+void addKey(JsonNode* node, const char* key) {
+    node->key = (char*)malloc(sizeof(char) * strlen(key) + 1);
+    strcpy(node->key, key);
+    node->key[strlen(key)] = '\0';
+}
+
+int addValueString(JsonNode* node, const char* value) {
+    node->value.s = (char*)malloc(sizeof(char) * strlen(value) + 1);
+    strcpy(node->value.s, value);
+    node->value.s[strlen(value)] = '\0';
+    return 0;
+}
+
+JsonNode* getEmptyJsonNode(const char* key, JsonNodeType type) {
     JsonNode* node = (JsonNode*)malloc(sizeof (JsonNode));
-    node->key = key;
+    node->key = NULL;
+    node->value.s = NULL;
+    node->children = NULL;
+
+    addKey(node, key);
     node->type = type;
     node->childrenLength = 0;
-    reallocateJsonNodeChildren(node, 0);
+    node->arrayElementsType = JsonNodeTypeUndefined;
     return node;
 }
 
@@ -136,8 +137,14 @@ void disposeJsonNode(JsonNode* node) {
             disposeJsonNode(node->children[i]);
         }
     }
+    if (node->key != NULL) {
+        free(node->key);
+    }
     if (node->children != NULL) {
         free(node->children);
+    }
+    if (node->type == JsonNodeTypeString && node->value.s != NULL) {
+        free(node->value.s);
     }
     free(node);
 }

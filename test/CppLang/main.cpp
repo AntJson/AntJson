@@ -24,11 +24,14 @@ int main() {
                        "  ]\n"
                        "}";
 
-    if (NVR::isEqualScheme(json)) {
-        std::cout << "Equals" << "\n";
-        NVR nvr(json);
-    } else {
-        std::cout << "No-Equals" << "\n";
+    for (int i = 0; i < 3000000; i++) {
+        if (NVR::isEqualScheme(json)) {
+            std::cout << "Equals" << "\n";
+//            NVR nvr(json);
+        } else {
+            std::cout << "No-Equals" << "|" << i << "|" <<"\n";
+            return -1;
+        }
     }
 
     return 0;
