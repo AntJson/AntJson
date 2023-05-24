@@ -103,7 +103,7 @@
 
 #ifndef AntKeySecure
 #ifdef __cplusplus
-#define AntKeySecure(jsonKey) (char*)jsonKey
+#define AntKeySecure(jsonKey) jsonKey
 #else
 #define AntKeySecure(jsonKey) jsonKey
 #endif // __cplusplus
@@ -119,8 +119,8 @@
         AntFromJsonName(type)(source, AntReference(dest->fieldName));             \
     }                                                                                   \
     if (flag == 2) {                                                                    \
-        Namespaced(JsonNode)* child = AntToJsonSchemeName(type)();              \
-        child->key = AntKeySecure(jsonKey);                                             \
+        Namespaced(JsonNode)* child = AntToJsonSchemeName(type)();           \
+        Namespaced(addKey)(child, jsonKey);\
         addChild(parent, child);                                                        \
     }
 #endif // AntStruct
@@ -188,18 +188,29 @@
 #define AntAssignIfArray(exp)
 #endif // AntAssignIf
 
+#ifndef AntFieldAssign
+#define AntFieldAssign(exp) AntFieldAssign ## exp
+
+#define AntFieldAssignInt(exp, ...) exp
+#define AntFieldAssignString(exp, source, value) source.assign(value)
+#define AntFieldAssignFloat(exp, ...) exp
+#define AntFieldAssignBool(exp, ...) exp
+#define AntFieldAssignArray(exp, ...) exp
+
+#endif // AntFieldAssign
+
 #ifndef AntValue
 #define AntValue(jsonKey, fieldName, nodeType, ...)         \
     if (flag == 0 && !strcmp(source->key, jsonKey)) {                                                   \
-        AntAssignIf(nodeType)(AntArrayAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__));)  \
+        AntAssignIf(nodeType)(AntArrayAssign(nodeType)(AntFieldAssign(nodeType)(dest->fieldName = source->value.AntUnionType(nodeType)(__VA_ARGS__), dest->fieldName, source->value.AntUnionType(nodeType)(__VA_ARGS__)));)  \
         AntAppendIf(nodeType)(if (source->type == AntJsonNodeType(Array)) { \
             for (int i = 0; i < source->childrenLength; i++) {\
                 AntArrayAppend(dest->numbersArray, source->children[i]->value.AntUnionType(nodeType)(__VA_ARGS__), i);\
             }\
         })\
     }\
-    if (flag == 2) {                                                                                            \
-        Namespaced(JsonNode)* child = getEmptyJsonNode(AntKeySecure(jsonKey), AntJsonNodeType(nodeType));   \
+    if (flag == 2) {                                        \
+        Namespaced(JsonNode)* child = getEmptyJsonNode(jsonKey, AntJsonNodeType(nodeType));   \
         AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));                                    \
         addChild(parent, child);                                                                            \
     }
@@ -266,8 +277,8 @@
         Namespaced(JsonNode)* schema = Namespaced(jsonNodeParse)(json.c_str()); \
         Namespaced(JsonNode)* dtoSchema = AntToJsonSchemeName(structType)();\
         int result = Namespaced(jsonIsEqualScheme)(dtoSchema, schema);     \
-        Namespaced(disposeJsonNode)(schema);                        \
         Namespaced(disposeJsonNode)(dtoSchema);\
+        Namespaced(disposeJsonNode)(schema);                        \
         return result;\
     }
 #endif // AntIsEqualScheme

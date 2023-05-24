@@ -58,8 +58,6 @@ typedef struct JsonNode_t {
     JsonNodeType arrayElementsType;
     // Key in json map
     char *key;
-    // Pointer to parent node
-    struct JsonNode_t *parent;
     // Not null if type is [number | string | bool]
     JsonValue value;
     // Not null if type is object
@@ -69,13 +67,17 @@ typedef struct JsonNode_t {
 } JsonNode;
 
 // JsonNode function helpers
-JsonNode *getEmptyJsonNode(char *key, JsonNodeType type);
+JsonNode *getEmptyJsonNode(const char *key, JsonNodeType type);
 
 // Free all allocated memory for all node tree
 void disposeJsonNode(JsonNode *node);
 
 // Add child to parent node with setting child->parent also
 int addChild(JsonNode *node, JsonNode *child);
+
+
+void addKey(JsonNode* node, const char* key);
+int addValueString(JsonNode* node, const char* value);
 
 // Checks if two JsonNodes has the same scheme
 int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema);
