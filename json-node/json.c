@@ -10,12 +10,10 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
         node->children = (JsonNode**) calloc(size, sizeof(JsonNode*));
     } else {
         JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
-        memcpy(newArray, node->children, (size - 1) * sizeof(JsonNode*));
-
-//        for (int i = 0; i < node->childrenLength; i++) {
-//            disposeJsonNode(node->children[i]);
-//        }
-
+        for (int i = 0; i < node->childrenLength; i++) {
+            newArray[i] = node->children[i];
+        }
+        free(node->children);
         node->children = newArray;
     }
 }
