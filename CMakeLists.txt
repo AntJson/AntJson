@@ -14,9 +14,9 @@ set(
 #
 # Check benchmarks of parser (https://lionet.livejournal.com/118853.html)
 #
-option(JSMN_PARENT_LINKS "Build jsmn_parser with define of building links" ON)
+option(JSMN_PARENT_LINKS "Build jsmn_parser with define of building links" "ON")
 
-if (JSMN_PARENT_LINKS)
+if (JSMN_PARENT_LINKS STREQUAL "ON")
     set (
         JSMN_PARSER_SRC
         json-parser/json-parser-with-parents.c
@@ -26,11 +26,12 @@ else ()
         JSMN_PARSER_SRC
         json-parser/json-parser.c
     )
-endif (JSMN_PARENT_LINKS)
-unset(JSMN_PARENT_LINKS)
+endif()
 
 add_library(AntJson SHARED ${COMMON_SOURCES} ${JSMN_PARSER_SRC})
 include_directories(thirdparty/jsmn)
 
 add_subdirectory(test/CLang)
 add_subdirectory(test/CppLang)
+
+unset(JSMN_PARENT_LINKS CACHE)
