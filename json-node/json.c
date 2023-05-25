@@ -101,6 +101,10 @@ int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
 }
 
 void addKey(JsonNode* node, const char* key) {
+    if (strlen(key) == 0) {
+        node->key = "";
+        return;
+    }
     node->key = (char*)malloc(sizeof(char) * strlen(key) + 1);
     strcpy(node->key, key);
     node->key[strlen(key)] = '\0';
@@ -135,7 +139,7 @@ void disposeJsonNode(JsonNode* node) {
             disposeJsonNode(node->children[i]);
         }
     }
-    if (node->key != NULL) {
+    if (node->key != NULL && strlen(node->key) != 0) {
         free(node->key);
     }
     if (node->children != NULL) {
