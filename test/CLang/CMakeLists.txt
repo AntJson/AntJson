@@ -4,7 +4,6 @@ set(AntJsonTestBuild_C_LANG 11)
 
 set (
         COMMON_SOURCES
-        ../../jsmn/jsmn.c
         ../../json-node/json.c
         ../../json-parser/json-parser.c
 )
@@ -14,3 +13,4 @@ set(
         main.c
 )
 add_executable(AntJsonTestBuild_C_LANG ${COMMON_SOURCES} ${EXECUTABLES})
+include_directories(../../thirdparty/jsmn)

@@ -2,9 +2,7 @@
 // Created by danysmall on 5/11/23.
 //
 #include "../json-node/json.h"
-#include "../jsmn/jsmn.h"
-#ifndef DTOCONSTRUCTOR_JSON_PARSER_H
-#define DTOCONSTRUCTOR_JSON_PARSER_H
+#include <jsmn.h>
 
 char* getSubstr(const char* source, int start, int end) {
     char* value = (char*)malloc(sizeof(char) * (end - start) + 1);
@@ -54,9 +52,6 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         if (value.type == JSMN_PRIMITIVE) {
             if (node->type == JsonNodeTypeArray) {
                 JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
-
-//                char* valueString = (char*)malloc(sizeof (char) * (value.end - value.start));
-//                valueString = strncpy(valueString, source + value.start, value.end - value.start);
                 char* valueString = getSubstr(source, value.start, value.end);
                 addChild(node, child);
 
@@ -160,21 +155,36 @@ JsonNode* jsonNodeParse(const char* source) {
     JsonNode* node = NULL;
 
     jsmn_parser parser;
-    jsmntok_t tokensParsed[128];
-    jsmn_init(&parser);
+    uint8_t multiplier = 1;
+    uint16_t baseCount = 512;
 
-    int parsedCount = jsmn_parse(&parser, source, strlen(source), tokensParsed, 128);
-    if (parsedCount <= 0) {
+    while (1) {
+        jsmntok_t tokensParsed[baseCount * multiplier];
+        jsmn_init(&parser);
+        int parsedCount = jsmn_parse(
+                &parser,
+                source,
+                strlen(source),
+                tokensParsed,
+                baseCount * multiplier
+        );
+
+        // If there was error return NULL
+        if (parsedCount == JSMN_ERROR_INVAL || parsedCount == JSMN_ERROR_PART) {
+            return NULL;
+        }
+
+        if (parsedCount == JSMN_ERROR_NOMEM) {
+            multiplier++;
+            continue;
+        }
+        node = getEmptyJsonNode("", JsonNodeTypeObject);
+
+        jsmntok_t tokensWithoutRootObject[parsedCount - 1];
+        memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
+
+        tokensToNodes(tokensWithoutRootObject, parsedCount - 1, node, source);
         return node;
     }
 
-    node = getEmptyJsonNode("", JsonNodeTypeObject);
-
-    jsmntok_t tokensWithoutRootObject[parsedCount - 1];
-    memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
-
-    tokensToNodes(tokensWithoutRootObject, parsedCount - 1, node, source);
-    return node;
 }
-
-#endif // DTOCONSTRUCTOR_JSON_PARSER_H

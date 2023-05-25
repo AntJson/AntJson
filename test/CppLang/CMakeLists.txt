@@ -7,9 +7,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 set (
         COMMON_SOURCES
-        ../../jsmn/jsmn.c
-        ../../json-node/json.c
-        ../../json-parser/json-parser.c
         dtos/account/account.cpp
         dtos/nvr/nvr.cpp
 )
@@ -19,3 +16,18 @@ set(
         main.cpp
 )
 add_executable(AntJsonTestBuild_CPP_LANG ${COMMON_SOURCES} ${EXECUTABLES})
+
+target_link_options(
+        AntJsonTestBuild_CPP_LANG
+        PUBLIC -Wl,--no-as-needed -Wl,--export-dynamic
+)
+
+target_link_directories(
+        AntJsonTestBuild_CPP_LANG
+        PUBLIC ../../cmake-build-debug
+)
+
+target_link_libraries(
+        AntJsonTestBuild_CPP_LANG
+        PUBLIC -lAntJson
+)
