@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
-project(AntJson C)
+project(AntJson CXX)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 set(
         COMMON_SOURCES
-        json-node/json.c
+        json-node/json.cpp
 )
 
 #
@@ -19,12 +19,12 @@ option(JSMN_PARENT_LINKS "Build jsmn_parser with define of building links" "ON")
 if (JSMN_PARENT_LINKS STREQUAL "ON")
     set (
         JSMN_PARSER_SRC
-        json-parser/json-parser-with-parents.c
+            json-parser/json-parser-with-parents.cpp
     )
 else ()
     set (
         JSMN_PARSER_SRC
-        json-parser/json-parser.c
+            json-parser/json-parser.cpp
     )
 endif()
 

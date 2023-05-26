@@ -1,7 +1,6 @@
 //
 // Created by danysmall on 5/11/23.
 //
-
 #ifdef __cplusplus
     #define ANT_JSON_MEMBER
     #define ANT_USE_REFERENCES

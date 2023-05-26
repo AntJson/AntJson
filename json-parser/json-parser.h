@@ -2,7 +2,7 @@
 // Created by danysmall on 5/11/23.
 //
 
-#include <stdint.h>
+#include <cstdint>
 #include "../json-node/json.h"
 
 #ifndef DTOCONSTRUCTOR_JSON_PARSER_H
@@ -13,7 +13,7 @@ extern "C" {
     namespace Ant {
 #endif
 
-      JsonNode *jsonNodeParse(const char *source);
+
 
 #ifdef __cplusplus
 };};

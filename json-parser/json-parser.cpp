@@ -4,6 +4,8 @@
 #include "../json-node/json.h"
 #include <jsmn.h>
 
+using namespace Ant;
+
 char* getSubstr(const char* source, int start, int end) {
     char* value = (char*)malloc(sizeof(char) * (end - start) + 1);
     strncpy(value, source + start, end - start);
@@ -13,13 +15,13 @@ char* getSubstr(const char* source, int start, int end) {
 
 uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, const char* source) {
     uint8_t multiplier = 2;
-    if (node->type == JsonNodeTypeArray) {
+    if (node->type == JsonNodeType::Array) {
         multiplier = 1;
     }
     for (uint32_t i = 0; i < tokensCount; i += multiplier) {
         jsmntok_t key;
         jsmntok_t value;
-        if (node->type == JsonNodeTypeArray) {
+        if (node->type == JsonNodeType::Array) {
             key = tokens[i];
             value = tokens[i];
         } else {
@@ -28,8 +30,8 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         }
 
         if (value.type == JSMN_STRING) {
-            if (node->type == JsonNodeTypeArray) {
-                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
+            if (node->type == JsonNodeType::Array) {
+                JsonNode* child = getEmptyJsonNode("",JsonNodeType::String);
 
                 char* valueString = getSubstr(source, value.start, value.end);
                 addValueString(child, valueString);
@@ -39,7 +41,7 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
                 continue;
             }
             char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeString);
+            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeType::String);
             free(keyValue);
 
             char* valueString = getSubstr(source, value.start, value.end);
@@ -50,27 +52,27 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
         }
 
         if (value.type == JSMN_PRIMITIVE) {
-            if (node->type == JsonNodeTypeArray) {
-                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
+            if (node->type == JsonNodeType::Array) {
+                JsonNode* child = getEmptyJsonNode("",JsonNodeType::String);
                 char* valueString = getSubstr(source, value.start, value.end);
                 addChild(node, child);
 
                 if (valueString[0] == 'n') {
-                    child->type = JsonNodeTypeNull;
-                    child->value.s = NULL;
+                    child->type = JsonNodeType::Null;
+                    child->value.s = nullptr;
                 } else if (valueString[0] == 't') {
-                    child->type = JsonNodeTypeBool;
+                    child->type = JsonNodeType::Bool;
                     child->value.b = 1;
                 } else if (valueString[0] == 'f') {
-                    child->type = JsonNodeTypeBool;
+                    child->type = JsonNodeType::Bool;
                     child->value.b = 0;
                 } else {
-                    char* stopString = NULL;
+                    char* stopString = nullptr;
                     if (strstr(valueString, ".")) {
-                        child->type = JsonNodeTypeFloat;
+                        child->type = JsonNodeType::Float;
                         child->value.f = strtof(valueString, &stopString);
                     } else {
-                        child->type = JsonNodeTypeInt;
+                        child->type = JsonNodeType::Int;
                         child->value.i = (int) strtol(valueString, &stopString, 10);
                     }
                 }
@@ -79,27 +81,27 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
             }
 
             char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
+            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeType::Object);
             free(keyValue);
             addChild(node, child);
 
             char* valueString = getSubstr(source, value.start, value.end);
             if (valueString[0] == 'n') {
-                child->type = JsonNodeTypeNull;
-                child->value.s = NULL;
+                child->type = JsonNodeType::Null;
+                child->value.s = nullptr;
             } else if (valueString[0] == 't') {
-                child->type = JsonNodeTypeBool;
+                child->type = JsonNodeType::Bool;
                 child->value.b = 1;
             } else if (valueString[0] == 'f') {
-                child->type = JsonNodeTypeBool;
+                child->type = JsonNodeType::Bool;
                 child->value.b = 0;
             } else {
                 char* stopString;
                 if (strstr(valueString, ".")) {
-                    child->type = JsonNodeTypeFloat;
+                    child->type = JsonNodeType::Float;
                     child->value.f = strtof(valueString, &stopString);
                 } else {
-                    child->type = JsonNodeTypeInt;
+                    child->type = JsonNodeType::Int;
                     child->value.i = (int) strtol(valueString, &stopString, 10);
                 }
             }
@@ -109,11 +111,11 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
 
         if (value.type == JSMN_OBJECT) {
             JsonNode* child;
-            if (node->type ==  JsonNodeTypeArray) {
-                child = getEmptyJsonNode("",JsonNodeTypeObject);
+            if (node->type ==  JsonNodeType::Array) {
+                child = getEmptyJsonNode("",JsonNodeType::Object);
             } else {
                 char* keyValue = getSubstr(source, key.start, key.end);
-                child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
+                child = getEmptyJsonNode(keyValue,JsonNodeType::Object);
                 free(keyValue);
             }
             addChild(node, child);
@@ -136,7 +138,7 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
             arrayNodesCount--;
 
             char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeArray);
+            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeType::Array);
             free(keyValue);
             addChild(node, child);
 
@@ -151,14 +153,14 @@ uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, 
     return tokensCount;
 }
 
-JsonNode* jsonNodeParse(const char* source) {
-    JsonNode* node = NULL;
+JsonNode* Ant::jsonNodeParse(const char *source) {
+    JsonNode* node = nullptr;
 
     jsmn_parser parser;
     uint8_t multiplier = 1;
     uint16_t baseCount = 512;
 
-    while (1) {
+    while (true) {
         jsmntok_t tokensParsed[baseCount * multiplier];
         jsmn_init(&parser);
         int parsedCount = jsmn_parse(
@@ -169,16 +171,16 @@ JsonNode* jsonNodeParse(const char* source) {
                 baseCount * multiplier
         );
 
-        // If there was error return NULL
+        // If there was error return nullptr
         if (parsedCount == JSMN_ERROR_INVAL || parsedCount == JSMN_ERROR_PART) {
-            return NULL;
+            return nullptr;
         }
 
         if (parsedCount == JSMN_ERROR_NOMEM) {
             multiplier++;
             continue;
         }
-        node = getEmptyJsonNode("", JsonNodeTypeObject);
+        node = getEmptyJsonNode("", JsonNodeType::Object);
 
         jsmntok_t tokensWithoutRootObject[parsedCount - 1];
         memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));

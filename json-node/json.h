@@ -1,14 +1,14 @@
 #ifndef JSON_H
 #define JSON_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
 #ifdef __cplusplus
 extern "C" {
-    namespace Ant {
+    namespace Ant{
 #endif
 
 
@@ -84,6 +84,8 @@ int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema);
 
 
 #ifdef __cplusplus
+
+    JsonNode *jsonNodeParse(const char *source);
 };};
 #endif
 

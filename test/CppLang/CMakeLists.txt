@@ -17,6 +17,11 @@ set(
 )
 add_executable(AntJsonTestBuild_CPP_LANG ${COMMON_SOURCES} ${EXECUTABLES})
 
+include_directories(
+        AntJsonTestBuild_CPP_LANG
+        ../../
+)
+
 target_link_options(
         AntJsonTestBuild_CPP_LANG
         PUBLIC -Wl,--no-as-needed -Wl,--export-dynamic

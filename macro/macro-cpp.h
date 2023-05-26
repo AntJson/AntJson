@@ -210,9 +210,9 @@
         })\
     }\
     if (flag == 2) {                                        \
-        Namespaced(JsonNode)* child = getEmptyJsonNode(jsonKey, AntJsonNodeType(nodeType));   \
+        Namespaced(JsonNode)* child = Namespaced(getEmptyJsonNode)(jsonKey, AntJsonNodeType(nodeType));   \
         AntArrayChildrenType(__VA_ARGS__)(AntJsonNodeType(__VA_ARGS__));                                    \
-        addChild(parent, child);                                                                            \
+        Namespaced(addChild)(parent, child);                                                                            \
     }
 #endif // AntValue
 

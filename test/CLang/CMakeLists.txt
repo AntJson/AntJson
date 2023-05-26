@@ -4,8 +4,8 @@ set(AntJsonTestBuild_C_LANG 11)
 
 set (
         COMMON_SOURCES
-        ../../json-node/json.c
-        ../../json-parser/json-parser.c
+        ../../json-node/json.cpp
+        ../../json-parser/json-parser.cpp
 )
 
 set(

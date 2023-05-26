@@ -1,15 +1,17 @@
 #include "json.h"
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
+
+using namespace Ant;
 
 void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
     if (size == 0) {
         return;
     }
-    if (node->children == NULL) {
+    if (node->children == nullptr) {
         node->children = (JsonNode**) calloc(size, sizeof(JsonNode*));
     } else {
-        JsonNode** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
+        auto** newArray = (JsonNode**) calloc(size, sizeof(JsonNode*));
         for (int i = 0; i < node->childrenLength; i++) {
             newArray[i] = node->children[i];
         }
@@ -18,8 +20,8 @@ void reallocateJsonNodeChildren(JsonNode* node, uint32_t size) {
     }
 }
 
-int addChild(JsonNode* node, JsonNode* child) {
-    if (node->type != JsonNodeTypeObject && node->type != JsonNodeTypeArray) {
+int Ant::addChild(JsonNode* node, JsonNode* child) {
+    if (node->type != JsonNodeType::Object && node->type != JsonNodeType::Array) {
         return -1;
     }
     reallocateJsonNodeChildren(node, node->childrenLength + 1);
@@ -27,17 +29,17 @@ int addChild(JsonNode* node, JsonNode* child) {
     return 0;
 }
 
-uint8_t getChildType(JsonNode* node) {
-    if (node->arrayElementsType != JsonNodeTypeUndefined || node->childrenLength == 0) {
+JsonNodeType getChildType(JsonNode* node) {
+    if (node->arrayElementsType != JsonNodeType::Undefined || node->childrenLength == 0) {
         return node->arrayElementsType;
     }
     if (node->childrenLength < 0) {
-        return -1;
+        return JsonNodeType::Undefined;
     }
-    uint8_t prev = node->children[0]->type;
+    JsonNodeType prev = node->children[0]->type;
     for (uint32_t i = 1; i < node->childrenLength; i++) {
         if (prev != node->children[i]->type) {
-            return -1;
+            return JsonNodeType::Undefined;
         }
         prev = node->children[i]->type;
     }
@@ -45,11 +47,11 @@ uint8_t getChildType(JsonNode* node) {
 }
 
 int isChildrenEqual(JsonNode* reference, JsonNode* schema) {
-    if (reference->type == JsonNodeTypeArray) {
-        uint8_t aChildType = getChildType(reference);
-        uint8_t bChildType = getChildType(schema);
-        if (aChildType == bChildType && aChildType >= 0) {
-            if (aChildType != JsonNodeTypeObject) {
+    if (reference->type == JsonNodeType::Array) {
+        JsonNodeType aChildType = getChildType(reference);
+        JsonNodeType bChildType = getChildType(schema);
+        if (aChildType == bChildType && aChildType != JsonNodeType::Undefined) {
+            if (aChildType != JsonNodeType::Object) {
                 return 1;
             }
             if (reference->childrenLength == 0 && schema->childrenLength == 0) {
@@ -86,13 +88,13 @@ int isChildrenEqual(JsonNode* reference, JsonNode* schema) {
     return 1;
 }
 
-int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
+int Ant::jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
 
-    if (reference == NULL || schema == NULL) {
+    if (reference == nullptr || schema == nullptr) {
         return 0;
     }
     if (reference->type == schema->type && strcmp(reference->key, schema->key) == 0) {
-        if (reference->type == JsonNodeTypeObject || reference->type == JsonNodeTypeArray) {
+        if (reference->type == JsonNodeType::Object || reference->type == JsonNodeType::Array) {
             return isChildrenEqual(reference, schema);
         }
         return 1;
@@ -100,7 +102,7 @@ int jsonIsEqualScheme(JsonNode *reference, JsonNode *schema) {
     return 0;
 }
 
-void addKey(JsonNode* node, const char* key) {
+void Ant::addKey(JsonNode* node, const char* key) {
     if (strlen(key) == 0) {
         node->key = "";
         return;
@@ -110,42 +112,42 @@ void addKey(JsonNode* node, const char* key) {
     node->key[strlen(key)] = '\0';
 }
 
-int addValueString(JsonNode* node, const char* value) {
+int Ant::addValueString(JsonNode* node, const char* value) {
     node->value.s = (char*)malloc(sizeof(char) * strlen(value) + 1);
     strcpy(node->value.s, value);
     node->value.s[strlen(value)] = '\0';
     return 0;
 }
 
-JsonNode* getEmptyJsonNode(const char* key, JsonNodeType type) {
-    JsonNode* node = (JsonNode*)malloc(sizeof (JsonNode));
-    node->key = NULL;
-    node->value.s = NULL;
-    node->children = NULL;
+JsonNode* Ant::getEmptyJsonNode(const char* key, JsonNodeType type) {
+    auto* node = (JsonNode*)malloc(sizeof (JsonNode));
+    node->key = nullptr;
+    node->value.s = nullptr;
+    node->children = nullptr;
 
-    addKey(node, key);
+    Ant::addKey(node, key);
     node->type = type;
     node->childrenLength = 0;
-    node->arrayElementsType = JsonNodeTypeUndefined;
+    node->arrayElementsType = JsonNodeType::Undefined;
     return node;
 }
 
-void disposeJsonNode(JsonNode* node) {
-    if (node == NULL) {
+void Ant::disposeJsonNode(JsonNode* node) {
+    if (node == nullptr) {
         return;
     }
-    if ((node->type == JsonNodeTypeObject || node->type == JsonNodeTypeArray) && node->childrenLength != 0 && node->children != NULL) {
+    if ((node->type == JsonNodeType::Object || node->type == JsonNodeType::Array) && node->childrenLength != 0 && node->children != nullptr) {
         for (int i = 0; i < node->childrenLength; i++) {
-            disposeJsonNode(node->children[i]);
+            Ant::disposeJsonNode(node->children[i]);
         }
     }
-    if (node->key != NULL && strlen(node->key) != 0) {
+    if (node->key != nullptr && strlen(node->key) != 0) {
         free(node->key);
     }
-    if (node->children != NULL) {
+    if (node->children != nullptr) {
         free(node->children);
     }
-    if (node->type == JsonNodeTypeString && node->value.s != NULL) {
+    if (node->type == JsonNodeType::String && node->value.s != nullptr) {
         free(node->value.s);
     }
     free(node);
