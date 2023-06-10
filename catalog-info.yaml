@@ -8,8 +8,6 @@ metadata:
   annotations:
     example.com/service-discovery: artistweb
     circleci.com/project-slug: github/example-org/artist-website
-  tags:
-    - java
   links:
     - url: https://admin.example-org.com
       title: Admin Dashboard
