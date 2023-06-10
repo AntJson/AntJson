@@ -1,20 +1,9 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: artist-web
-  description: The place to be, for great artists
-  labels:
-    example.com/custom: custom_label_value
-  annotations:
-    example.com/service-discovery: artistweb
-    circleci.com/project-slug: github/example-org/artist-website
-  links:
-    - url: https://admin.example-org.com
-      title: Admin Dashboard
-      icon: dashboard
-      type: admin-dashboard
+  name: AntJson
+  description: AntJson Project
 spec:
-  type: website
-  lifecycle: production
-  owner: artist-relations-team
-  system: public-websites
+  type: service
+  lifecycle: experimental
+  owner: weissmall
