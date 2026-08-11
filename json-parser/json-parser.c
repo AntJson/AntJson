@@ -1,6 +1,13 @@
 //
 // Created by danysmall on 5/11/23.
 //
+// NOTE: the token-to-node walk was rewritten to recurse over the real DFS token
+// span rather than copying a fixed value.size * 2 slice. The original walk
+// miscounted nested objects/arrays (jsmn's size counts only direct children, so
+// descendants were dropped and read out of place), which left nested objects
+// empty and leaked their members as siblings. The recursive form consumes
+// 1 token for the value plus its real subtree, so nesting is preserved exactly.
+//
 #include "../json-node/json.h"
 #include <jsmn.h>
 
@@ -11,149 +18,92 @@ char* getSubstr(const char* source, int start, int end) {
     return value;
 }
 
-uint32_t tokensToNodes(jsmntok_t* tokens, uint32_t tokensCount, JsonNode* node, const char* source) {
-    uint8_t multiplier = 2;
-    if (node->type == JsonNodeTypeArray) {
-        multiplier = 1;
+// Parses the value token at tokens[cursor], building a node with the supplied key
+// (an empty key for array elements / the root) and returning it through *out.
+// Returns the number of tokens consumed by this value (itself plus all of its
+// descendants), so callers advance the cursor by exactly the subtree span.
+// The caller owns the returned node (its parent adds it via addChild, or
+// jsonNodeParse returns it directly as the root).
+static uint32_t parseValue(const jsmntok_t* tokens, uint32_t cursor, const char* key,
+                           const char* source, JsonNode** out) {
+    const jsmntok_t tok = tokens[cursor];
+    *out = NULL;
+
+    if (tok.type == JSMN_STRING) {
+        JsonNode* child = getEmptyJsonNode(key, JsonNodeTypeString);
+        char* valueString = getSubstr(source, tok.start, tok.end);
+        addValueString(child, valueString);
+        free(valueString);
+        *out = child;
+        return 1;
     }
-    for (uint32_t i = 0; i < tokensCount; i += multiplier) {
-        jsmntok_t key;
-        jsmntok_t value;
-        if (node->type == JsonNodeTypeArray) {
-            key = tokens[i];
-            value = tokens[i];
+
+    if (tok.type == JSMN_PRIMITIVE) {
+        JsonNode* child = getEmptyJsonNode(key, JsonNodeTypeObject);
+        char* valueString = getSubstr(source, tok.start, tok.end);
+        if (valueString[0] == 'n') {
+            child->type = JsonNodeTypeNull;
+            child->value.s = NULL;
+        } else if (valueString[0] == 't') {
+            child->type = JsonNodeTypeBool;
+            child->value.b = 1;
+        } else if (valueString[0] == 'f') {
+            child->type = JsonNodeTypeBool;
+            child->value.b = 0;
         } else {
-            key  = tokens[i];
-            value = tokens[i + 1];
-        }
-
-        if (value.type == JSMN_STRING) {
-            if (node->type == JsonNodeTypeArray) {
-                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
-
-                char* valueString = getSubstr(source, value.start, value.end);
-                addValueString(child, valueString);
-                free(valueString);
-                addChild(node, child);
-
-                continue;
-            }
-            char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeString);
-            free(keyValue);
-
-            char* valueString = getSubstr(source, value.start, value.end);
-            addValueString(child, valueString);
-            free(valueString);
-            addChild(node, child);
-            continue;
-        }
-
-        if (value.type == JSMN_PRIMITIVE) {
-            if (node->type == JsonNodeTypeArray) {
-                JsonNode* child = getEmptyJsonNode("",JsonNodeTypeString);
-                char* valueString = getSubstr(source, value.start, value.end);
-                addChild(node, child);
-
-                if (valueString[0] == 'n') {
-                    child->type = JsonNodeTypeNull;
-                    child->value.s = NULL;
-                } else if (valueString[0] == 't') {
-                    child->type = JsonNodeTypeBool;
-                    child->value.b = 1;
-                } else if (valueString[0] == 'f') {
-                    child->type = JsonNodeTypeBool;
-                    child->value.b = 0;
-                } else {
-                    char* stopString = NULL;
-                    if (strstr(valueString, ".")) {
-                        child->type = JsonNodeTypeFloat;
-                        child->value.f = strtof(valueString, &stopString);
-                    } else {
-                        child->type = JsonNodeTypeInt;
-                        child->value.i = (int) strtol(valueString, &stopString, 10);
-                    }
-                }
-                free(valueString);
-                continue;
-            }
-
-            char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
-            free(keyValue);
-            addChild(node, child);
-
-            char* valueString = getSubstr(source, value.start, value.end);
-            if (valueString[0] == 'n') {
-                child->type = JsonNodeTypeNull;
-                child->value.s = NULL;
-            } else if (valueString[0] == 't') {
-                child->type = JsonNodeTypeBool;
-                child->value.b = 1;
-            } else if (valueString[0] == 'f') {
-                child->type = JsonNodeTypeBool;
-                child->value.b = 0;
+            char* stopString = NULL;
+            if (strstr(valueString, ".")) {
+                child->type = JsonNodeTypeFloat;
+                child->value.f = strtof(valueString, &stopString);
             } else {
-                char* stopString;
-                if (strstr(valueString, ".")) {
-                    child->type = JsonNodeTypeFloat;
-                    child->value.f = strtof(valueString, &stopString);
-                } else {
-                    child->type = JsonNodeTypeInt;
-                    child->value.i = (int) strtol(valueString, &stopString, 10);
-                }
+                child->type = JsonNodeTypeInt;
+                child->value.i = (int) strtol(valueString, &stopString, 10);
             }
-            free(valueString);
-            continue;
         }
-
-        if (value.type == JSMN_OBJECT) {
-            JsonNode* child;
-            if (node->type ==  JsonNodeTypeArray) {
-                child = getEmptyJsonNode("",JsonNodeTypeObject);
-            } else {
-                char* keyValue = getSubstr(source, key.start, key.end);
-                child = getEmptyJsonNode(keyValue,JsonNodeTypeObject);
-                free(keyValue);
-            }
-            addChild(node, child);
-
-            jsmntok_t objectTokens[value.size * 2];
-            memcpy(objectTokens, tokens + i + multiplier, (value.size * 2) * sizeof(jsmntok_t));
-            tokensToNodes(objectTokens, value.size * 2, child, source);
-            i += (value.size * 2);
-            continue;
-        }
-
-        if (value.type == JSMN_ARRAY) {
-            uint32_t arrayNodesCount = 0;
-            for (uint32_t j = i + 1; j < tokensCount; j++) {
-                if (tokens[j].start >= value.end) {
-                    break;
-                }
-                arrayNodesCount++;
-            }
-            arrayNodesCount--;
-
-            char* keyValue = getSubstr(source, key.start, key.end);
-            JsonNode* child = getEmptyJsonNode(keyValue,JsonNodeTypeArray);
-            free(keyValue);
-            addChild(node, child);
-
-            jsmntok_t objectTokens[arrayNodesCount];
-            memcpy(objectTokens, tokens + i + 2, (arrayNodesCount) * sizeof(jsmntok_t));
-            tokensToNodes(objectTokens, arrayNodesCount, child, source);
-            i += (arrayNodesCount);
-
-            continue;
-        }
+        free(valueString);
+        *out = child;
+        return 1;
     }
-    return tokensCount;
+
+    if (tok.type == JSMN_OBJECT) {
+        JsonNode* child = getEmptyJsonNode(key, JsonNodeTypeObject);
+        uint32_t idx = cursor + 1;
+        for (int p = 0; p < tok.size; ++p) {
+            const jsmntok_t keyTok = tokens[idx];
+            char* keyStr = getSubstr(source, keyTok.start, keyTok.end);
+            idx += 1;
+            JsonNode* member = NULL;
+            uint32_t consumed = parseValue(tokens, idx, keyStr, source, &member);
+            idx += consumed;
+            free(keyStr);
+            if (member != NULL) {
+                addChild(child, member);
+            }
+        }
+        *out = child;
+        return idx - cursor;
+    }
+
+    if (tok.type == JSMN_ARRAY) {
+        JsonNode* child = getEmptyJsonNode(key, JsonNodeTypeArray);
+        uint32_t idx = cursor + 1;
+        for (int e = 0; e < tok.size; ++e) {
+            JsonNode* element = NULL;
+            uint32_t consumed = parseValue(tokens, idx, "", source, &element);
+            idx += consumed;
+            if (element != NULL) {
+                addChild(child, element);
+            }
+        }
+        *out = child;
+        return idx - cursor;
+    }
+
+    // Unknown token kind: skip it without producing a node.
+    return 1;
 }
 
 JsonNode* jsonNodeParse(const char* source) {
-    JsonNode* node = NULL;
-
     jsmn_parser parser;
     uint8_t multiplier = 1;
     uint16_t baseCount = 512;
@@ -169,22 +119,23 @@ JsonNode* jsonNodeParse(const char* source) {
                 baseCount * multiplier
         );
 
-        // If there was error return NULL
+        // If there was an error return NULL.
         if (parsedCount == JSMN_ERROR_INVAL || parsedCount == JSMN_ERROR_PART) {
             return NULL;
         }
-
         if (parsedCount == JSMN_ERROR_NOMEM) {
             multiplier++;
             continue;
         }
-        node = getEmptyJsonNode("", JsonNodeTypeObject);
+        // A valid document yields at least one token (the root). Guard an
+        // unexpected zero count so an empty or degenerate body returns NULL
+        // instead of reading tokensParsed out of bounds.
+        if (parsedCount < 1) {
+            return NULL;
+        }
 
-        jsmntok_t tokensWithoutRootObject[parsedCount - 1];
-        memcpy(tokensWithoutRootObject, tokensParsed + 1, (parsedCount - 1) * sizeof(jsmntok_t));
-
-        tokensToNodes(tokensWithoutRootObject, parsedCount - 1, node, source);
-        return node;
+        JsonNode* root = NULL;
+        parseValue(tokensParsed, 0, "", source, &root);
+        return root;
     }
-
 }
